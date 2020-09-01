@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,32 @@ public class Character : EntityLiving
         Chest, Leg, Feet, Head, Ring, Amulet, Weapon, Cape
     }
 
+
+    public Character()
+    {
+        stats = new Dictionary<Stat, float>();
+        effects = new List<Effect>();
+        items = new Dictionary<Slot, Item>();
+
+
+        GenerateBaseStats();
+        foreach (var stat in baseStats)
+        {
+            stats.Add(stat.Key, stat.Value);
+        }
+    }
+
+    private void GenerateBaseStats()
+    {
+        baseStats = new Dictionary<Stat, float>();
+
+        foreach (Stat stat in Enum.GetValues(typeof(Stat)))
+        {
+            baseStats.Add(stat, 1);
+        }
+        baseStats[Stat.AttackPower] = 10;
+
+    }
     public void ChangeEquipment(Item item)
     {
         items[item.Slot] = item;

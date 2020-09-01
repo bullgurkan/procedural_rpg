@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-    public class Room
-    {
-        public List<Entity> entities;
-    }
+public class Room
+{
+    public List<Entity> entities;
+}
 
