@@ -9,9 +9,11 @@ public abstract class EntityLiving : Entity, ITickable
 {
     protected Dictionary<Stat, float> stats;
 
+    public EntityLiving(Position unScaledSize) : base(unScaledSize)
+    {
 
+    }
     public abstract void Tick(World world);
-
 
     public enum Stat
     {

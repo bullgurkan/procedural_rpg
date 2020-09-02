@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Character : EntityLiving
 {
@@ -17,7 +16,7 @@ public class Character : EntityLiving
     }
 
 
-    public Character()
+    public Character(Position unScaledSize) : base(unScaledSize)
     {
         stats = new Dictionary<Stat, float>();
         effects = new List<Effect>();

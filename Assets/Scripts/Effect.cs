@@ -22,7 +22,8 @@ public class Effect
     }
     public void OnEvent(EventType eventType, Character character)
     {
-        actions[eventType].OnActivation(character);
+        if(actions.ContainsKey(eventType))
+            actions[eventType].OnActivation(character);
     }
 
     public void ModifyStats(EntityLiving entity)
