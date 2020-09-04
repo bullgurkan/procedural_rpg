@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using UnityEngine;
 
 public class World
 {
     Dictionary<int, Entity> entities;
     List<ITickable> tickables;
     Room[][] rooms;
-    int roomSize;
-    public int Accuracy { get; private set; }
+    public int RoomSize { get; private set; }
+    public WorldRenderer WorldRenderer { get; private set; }
 
-    public World(int worldSizeX, int worldSizeY, int roomSize, int accuracy)
+    public World(int worldSizeX, int worldSizeY, int roomSize, int accuracy, WorldRenderer worldRenderer)
     {
-        this.roomSize = roomSize;
-        this.Accuracy = accuracy;
+        RoomSize = roomSize;
+        WorldRenderer = worldRenderer;
         entities = new Dictionary<int, Entity>();
         tickables = new List<ITickable>();
         rooms = new Room[worldSizeX][];
@@ -26,23 +23,20 @@ public class World
             for (int y = 0; y < worldSizeY; y++)
             {
                 rooms[x][y] = new Room();
+                AddEntity(new Entity(Position.zero, Position.one * RoomSize, name: $"Room {x}, {y}"), new Position(x, y), Position.zero);
             }
         }
     }
 
     public void Tick()
     {
-        foreach (var item in entities)
-        {
-            Console.WriteLine(item.Value.PositionInRoom);
-        }
         foreach (var tickable in tickables)
         {
             tickable.Tick(this);
         }
     }
 
-    public void AddEntity(Entity entity, Position roomPos, Position posInRoom)
+    public void AddEntity(Entity entity, Position roomPos, Position posInRoom, bool shouldCameraFollow = false)
     {
         entity.Id = GenerateId();
         entities.Add(entity.Id, entity);
@@ -52,8 +46,11 @@ public class World
         //scales the size with accuracy
         entity.SetSize(entity.Size, this, true);
 
-        entity.SetCurrentRoom(roomPos, this);
+        if(entity.Size.x > 0 || entity.Size.y > 0)
+            entity.SetCurrentRoom(roomPos, this);
         entity.SetPositionInRoom(posInRoom, this, true);
+
+        WorldRenderer.AddEntity(entity, this, shouldCameraFollow);
     }
 
 
@@ -66,11 +63,11 @@ public class World
         return i;
     }
 
-    public Entity[] BoxCastinLine(Position roomPosition, Position pos, Position direction, int distance, Position size)
+    public Entity[] BoxCastinLine(int entityToIgnoreId, Position roomPosition, Position pos, Position direction, int distance, Position size)
     {
         List<Entity> colldingEntities = new List<Entity>();
 
-        Position destination = pos + direction * distance * Accuracy;
+        Position destination = pos + direction * distance;
         Position normal = Position.RightNormal(destination);
 
         float shortestDistancesFromLine = int.MaxValue;
@@ -94,10 +91,10 @@ public class World
 
         foreach (Entity entity in GetRoom(roomPosition).entities)
         {
-            if (IsColliding(pos, size, entity.PositionInRoom, entity.Size))
+            if (entity.Id != entityToIgnoreId && IsColliding(pos + (direction * distance)/2, direction * distance + size, entity.PositionInRoom, entity.Size))
                 if (IsDistanceToLineLongerThan(entity.PositionInRoom, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
                     colldingEntities.Add(entity);
-                    
+   
         }
 
         foreach (Position direciton in Position.directions)
@@ -146,14 +143,15 @@ public class World
 
     private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, float shortestDistancesFromLine, float longestDistancesFromLine)
     {
-        
+ 
+
         int oldDistanceFormLineNeg = 0;
         for (int x = -1; x < 2; x += 2)
         {
             for (int y = -1; y < 2; y += 2)
             {
                 float distanceFormLine = Position.Dot(boxPos + new Position(x * boxSize.x, y * boxSize.y), normal);
-                if (distanceFormLine >= shortestDistancesFromLine && distanceFormLine <= longestDistancesFromLine)
+                if (distanceFormLine > shortestDistancesFromLine && distanceFormLine < longestDistancesFromLine)
                 {
                     return true;
                 }
@@ -162,6 +160,8 @@ public class World
                     int distanceFormLineNeg = distanceFormLine > 0 ? 1 : -1;
                     if (oldDistanceFormLineNeg != distanceFormLineNeg && oldDistanceFormLineNeg != 0)
                         return true;
+                    
+                        
                     oldDistanceFormLineNeg = distanceFormLineNeg;
                 }
 
@@ -173,11 +173,13 @@ public class World
 
     protected bool IsColliding(Position pos1, Position size1, Position pos2, Position size2)
     {
+        if (size1 == Position.zero || size2 == Position.zero)
+            return false;
         return IsBoxCornersColliding(pos1 - size1 / 2, pos1 + size1 / 2, pos2 - size2 / 2, pos2 + size2 / 2);
     }
     protected bool IsBoxCornersColliding(Position box1LowerLeft, Position box1UpperRightCorner, Position box2LowerLeft, Position box2UpperRightCorner)
     {
-        return (box2LowerLeft.x <= box1UpperRightCorner.x && box2UpperRightCorner.x >= box1LowerLeft.x) && (box2LowerLeft.y <= box1UpperRightCorner.y && box2UpperRightCorner.y >= box1LowerLeft.y);
+        return (box2LowerLeft.x < box1UpperRightCorner.x && box2UpperRightCorner.x > box1LowerLeft.x) && (box2LowerLeft.y < box1UpperRightCorner.y && box2UpperRightCorner.y >= box1LowerLeft.y);
     }
 
     public Room GetRoom(Position roomPosition)
@@ -189,12 +191,12 @@ public class World
 
     public Position ConvertPositionBetweenRooms(Position pos, Position room1, Position room2)
     {
-        return pos + (room2 - room1) * roomSize * Accuracy;
+        return pos - (room2 - room1) * RoomSize;
     }
 
     public Position RoomDeltaIfOutsideOfRoom(Position pos)
     {
-        return new Position(pos.x / (roomSize / 2), pos.y / (roomSize / 2));
+        return new Position(pos.x / (RoomSize / 2), pos.y / (RoomSize / 2));
     }
 }
 

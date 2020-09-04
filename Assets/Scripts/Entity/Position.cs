@@ -38,6 +38,8 @@ public struct Position
     public static Position RightNormal(Position a) => new Position(-a.y, a.x);
 
     public override string ToString() => $"({x}, {y})";
+    public override bool Equals(object obj) => base.Equals(obj);
+    public override int GetHashCode() => base.GetHashCode();
 
 }
 

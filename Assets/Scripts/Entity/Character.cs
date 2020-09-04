@@ -16,7 +16,7 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position unScaledSize) : base(unScaledSize)
+    public Character(Position size, string spriteId) : base(size, spriteId)
     {
         stats = new Dictionary<Stat, float>();
         effects = new List<Effect>();
