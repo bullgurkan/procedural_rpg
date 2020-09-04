@@ -42,6 +42,7 @@ class UnityWorldRenerer : WorldRenderer
         currentlyUsedObjects[entity.Id].transform.localPosition = EntityPosToUnityPos(entity, world);
         currentlyUsedObjects[entity.Id].gameObject.SetActive(true);
         currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.RenderSize);
+ 
 
         if (shouldCameraFollow)
         {

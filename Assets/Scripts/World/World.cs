@@ -10,7 +10,7 @@ public class World
     public int RoomSize { get; private set; }
     public WorldRenderer WorldRenderer { get; private set; }
 
-    public World(int worldSizeX, int worldSizeY, int roomSize, int accuracy, WorldRenderer worldRenderer)
+    public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer)
     {
         RoomSize = roomSize;
         WorldRenderer = worldRenderer;
@@ -46,8 +46,8 @@ public class World
         //scales the size with accuracy
         entity.SetSize(entity.Size, this, true);
 
-        if(entity.Size.x > 0 || entity.Size.y > 0)
-            entity.SetCurrentRoom(roomPos, this);
+        //if(entity.Size.x > 0 || entity.Size.y > 0)
+        entity.SetCurrentRoom(roomPos, this);
         entity.SetPositionInRoom(posInRoom, this, true);
 
         WorldRenderer.AddEntity(entity, this, shouldCameraFollow);
@@ -65,10 +65,14 @@ public class World
 
     public Entity[] BoxCastinLine(int entityToIgnoreId, Position roomPosition, Position pos, Position direction, int distance, Position size)
     {
+        if (distance % 2 == 1)
+            throw new Exception("distance has to be dividable by 2");
+
         List<Entity> colldingEntities = new List<Entity>();
 
         Position destination = pos + direction * distance;
         Position normal = Position.RightNormal(destination);
+
 
         float shortestDistancesFromLine = int.MaxValue;
         float longestDistancesFromLine = int.MinValue;
@@ -89,12 +93,18 @@ public class World
             }
         }
 
+
         foreach (Entity entity in GetRoom(roomPosition).entities)
         {
-            if (entity.Id != entityToIgnoreId && IsColliding(pos + (direction * distance)/2, direction * distance + size, entity.PositionInRoom, entity.Size))
+            if (entity.Id != entityToIgnoreId && IsColliding(pos + (direction * distance) / 2, direction * distance + size, entity.PositionInRoom, entity.Size))
+            {
                 if (IsDistanceToLineLongerThan(entity.PositionInRoom, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
                     colldingEntities.Add(entity);
-   
+            }
+                
+
+
+
         }
 
         foreach (Position direciton in Position.directions)
@@ -108,6 +118,7 @@ public class World
                     if (IsColliding(pos, size, convertedEntityPos, entity.Size))
                         if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
                             colldingEntities.Add(entity);
+                        
                 }
             }
 
@@ -143,7 +154,7 @@ public class World
 
     private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, float shortestDistancesFromLine, float longestDistancesFromLine)
     {
- 
+
 
         int oldDistanceFormLineNeg = 0;
         for (int x = -1; x < 2; x += 2)
@@ -160,8 +171,8 @@ public class World
                     int distanceFormLineNeg = distanceFormLine > 0 ? 1 : -1;
                     if (oldDistanceFormLineNeg != distanceFormLineNeg && oldDistanceFormLineNeg != 0)
                         return true;
-                    
-                        
+
+
                     oldDistanceFormLineNeg = distanceFormLineNeg;
                 }
 
@@ -179,7 +190,8 @@ public class World
     }
     protected bool IsBoxCornersColliding(Position box1LowerLeft, Position box1UpperRightCorner, Position box2LowerLeft, Position box2UpperRightCorner)
     {
-        return (box2LowerLeft.x < box1UpperRightCorner.x && box2UpperRightCorner.x > box1LowerLeft.x) && (box2LowerLeft.y < box1UpperRightCorner.y && box2UpperRightCorner.y >= box1LowerLeft.y);
+        Debug.Log($"{box2LowerLeft.x < box1UpperRightCorner.x} && {box2UpperRightCorner.x > box1LowerLeft.x}) && ({box2LowerLeft.y < box1UpperRightCorner.y} && {box2UpperRightCorner.y > box1LowerLeft.y}");
+        return (box2LowerLeft.x < box1UpperRightCorner.x && box2UpperRightCorner.x > box1LowerLeft.x) && (box2LowerLeft.y < box1UpperRightCorner.y && box2UpperRightCorner.y > box1LowerLeft.y);
     }
 
     public Room GetRoom(Position roomPosition)
