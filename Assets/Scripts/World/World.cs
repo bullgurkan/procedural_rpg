@@ -74,18 +74,19 @@ public class World
         Position normal = Position.RightNormal(destination);
 
 
-        float shortestDistancesFromLine = int.MaxValue;
-        float longestDistancesFromLine = int.MinValue;
+        int shortestDistancesFromLine = int.MaxValue;
+        int longestDistancesFromLine = int.MinValue;
         for (int x = -1; x < 2; x += 2)
         {
             for (int y = -1; y < 2; y += 2)
             {
-                float distanceFormLine = Position.Dot(pos + new Position(x * size.x, y * size.y), normal);
+                int distanceFormLine = Position.Dot(pos + new Position(x * size.x, y * size.y), normal);
                 if (distanceFormLine < shortestDistancesFromLine)
                 {
                     shortestDistancesFromLine = distanceFormLine;
                 }
-                else if (distanceFormLine > longestDistancesFromLine)
+
+                if (distanceFormLine > longestDistancesFromLine)
                 {
                     longestDistancesFromLine = distanceFormLine;
                 }
@@ -156,34 +157,31 @@ public class World
     }
 
 
-    private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, float shortestDistancesFromLine, float longestDistancesFromLine)
+    private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, int shortestDistancesFromLine1, int longestDistancesFromLine1)
     {
 
 
-        int oldDistanceFormLineNeg = 0;
+        int shortestDistancesFromLine2 = int.MaxValue, longestDistancesFromLine2 = int.MinValue;
         for (int x = -1; x < 2; x += 2)
         {
             for (int y = -1; y < 2; y += 2)
             {
-                float distanceFormLine = Position.Dot(boxPos + new Position(x * boxSize.x, y * boxSize.y), normal);
-                if (distanceFormLine > shortestDistancesFromLine && distanceFormLine < longestDistancesFromLine)
+                int distanceFormLine = Position.Dot(boxPos + new Position(x * boxSize.x, y * boxSize.y), normal);
+                if (distanceFormLine > shortestDistancesFromLine1 && distanceFormLine < longestDistancesFromLine1)
                 {
                     return true;
                 }
                 else
                 {
-                    int distanceFormLineNeg = distanceFormLine > 0 ? 1 : -1;
-                    if (oldDistanceFormLineNeg != distanceFormLineNeg && oldDistanceFormLineNeg != 0)
-                        return true;
-
-
-                    oldDistanceFormLineNeg = distanceFormLineNeg;
+                    if (distanceFormLine < shortestDistancesFromLine2)
+                        shortestDistancesFromLine2 = distanceFormLine;
+                    if(distanceFormLine > longestDistancesFromLine2)
+                        longestDistancesFromLine2 = distanceFormLine;
                 }
-
-
             }
         }
-        return false;
+
+        return shortestDistancesFromLine2 > 0 != longestDistancesFromLine2 > 0;
     }
 
     protected bool IsColliding(Position pos1, Position size1, Position pos2, Position size2)

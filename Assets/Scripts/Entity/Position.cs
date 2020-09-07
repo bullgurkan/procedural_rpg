@@ -35,7 +35,7 @@ public struct Position
 
     public static bool operator ==(Position a, Position b) => a.x == b.x && a.y == b.y;
     public static bool operator !=(Position a, Position b) => !(a == b);
-    public static float Dot(Position a, Position b) => a.x * b.x + a.y * b.y;
+    public static int Dot(Position a, Position b) => a.x * b.x + a.y * b.y;
     public static Position RightNormal(Position a) => new Position(-a.y, a.x);
 
     public override string ToString() => $"({x}, {y})";
