@@ -17,16 +17,16 @@ class UnityGameContainer : MonoBehaviour
     {
         Dictionary<string, Sprite> spriteReg = new Dictionary<string, Sprite>();
         spriteReg.Add("default", sprites[0]);
-        UnityWorldRenerer worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 30);
+        UnityWorldRenerer worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 60);
 
-        world = new World(10,10,250,worldRenerer);
+        world = new World(10,10,500,worldRenerer);
 
         e = new Entity(Position.one * 10, name: "Player");
         world.AddEntity(e, Position.zero, Position.zero, true);
         world.AddEntity(new Entity(Position.one * 10, name: "Rock"), Position.zero, Position.down * 10, true);
 
-        //e.MoveInLine(Position.down, 2, world);
-       // e.MoveInLine(Position.up, 2, world);
+        e.MoveInLine(Position.down, 2, world, false);
+        //e.MoveInLine(Position.up, 2, world);
 
         world.Tick();
     }
@@ -38,7 +38,8 @@ class UnityGameContainer : MonoBehaviour
 
     private void FixedUpdate()
     {
-        e.MoveInLine(new Position((int)input.x, (int)input.y), 2, world);
+        //input = input.normalized * 4;
+        e.MoveInLine(new Position((int)input.x, (int)input.y), 2, world, true);
         input = Vector2.zero;
     }
 }

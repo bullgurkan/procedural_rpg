@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Entity
 {
@@ -28,8 +29,9 @@ public class Entity
         Name = name;
     }
 
-    public void MoveInLine(Position direction, int distance, World world)
+    public void MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
+
         if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, direction, distance, Size).Length == 0)
         {
             SetPositionInRoom(PositionInRoom + direction * distance, world, true);
@@ -37,7 +39,23 @@ public class Entity
         }
         else
         {
-            UnityEngine.Debug.Log("fail");
+            if (shouldSlide && direction.x != 0 && direction.y != 0)
+            {
+
+                Position halfDir = new Position(direction.x, 0);
+                if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, halfDir, distance, Size).Length == 0)
+                {
+                    SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
+                    world.WorldRenderer?.UpdateEntityPosition(this, world);
+                }
+
+                halfDir = new Position(0, direction.y);
+                if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, halfDir, distance, Size).Length == 0)
+                {
+                    SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
+                    world.WorldRenderer?.UpdateEntityPosition(this, world);
+                }
+            }
         }
     }
     public void SetPositionInRoom(Position pos, World world, bool force)
@@ -55,14 +73,14 @@ public class Entity
 
     public void SetCurrentRoom(Position room, World world)
     {
-        if(world.GetRoom(room) != null)
+        if (world.GetRoom(room) != null)
         {
             world.GetRoom(CurrentRoom).entities.Remove(this);
             world.GetRoom(room).entities.Add(this);
             PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
             CurrentRoom = room;
         }
-       
+
     }
 
     public void SetSize(Position size, World world, bool force)

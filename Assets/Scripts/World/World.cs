@@ -93,10 +93,14 @@ public class World
             }
         }
 
+ 
+
+        Position posBetweenOriginAndDest = pos + (direction * distance) / 2;
+        Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + size;
 
         foreach (Entity entity in GetRoom(roomPosition).entities)
         {
-            if (entity.Id != entityToIgnoreId && IsColliding(pos + (direction * distance) / 2, direction * distance + size, entity.PositionInRoom, entity.Size))
+            if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, entity.PositionInRoom, entity.Size))
             {
                 if (IsDistanceToLineLongerThan(entity.PositionInRoom, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
                     colldingEntities.Add(entity);
@@ -115,7 +119,7 @@ public class World
                 foreach (Entity entity in GetRoom(room2).entities)
                 {
                     Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, roomPosition, room2);
-                    if (IsColliding(pos, size, convertedEntityPos, entity.Size))
+                    if (IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
                         if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
                             colldingEntities.Add(entity);
                         
@@ -190,7 +194,6 @@ public class World
     }
     protected bool IsBoxCornersColliding(Position box1LowerLeft, Position box1UpperRightCorner, Position box2LowerLeft, Position box2UpperRightCorner)
     {
-        Debug.Log($"{box2LowerLeft.x < box1UpperRightCorner.x} && {box2UpperRightCorner.x > box1LowerLeft.x}) && ({box2LowerLeft.y < box1UpperRightCorner.y} && {box2UpperRightCorner.y > box1LowerLeft.y}");
         return (box2LowerLeft.x < box1UpperRightCorner.x && box2UpperRightCorner.x > box1LowerLeft.x) && (box2LowerLeft.y < box1UpperRightCorner.y && box2UpperRightCorner.y > box1LowerLeft.y);
     }
 
