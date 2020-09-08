@@ -34,7 +34,7 @@ public class Entity
     public void MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
 
-        if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, direction, distance, Size).Length == 0)
+        if (world.BoxCastinLine(Id, this, direction, distance).Length == 0)
         {
             SetPositionInRoom(PositionInRoom + direction * distance, world, true);
             world.WorldRenderer?.UpdateEntityPosition(this, world);
@@ -47,14 +47,14 @@ public class Entity
             {
 
                 Position halfDir = new Position(direction.x, 0);
-                if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, halfDir, distance, Size).Length == 0)
+                if (world.BoxCastinLine(Id, this, halfDir, distance).Length == 0)
                 {
                     SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
                     world.WorldRenderer?.UpdateEntityPosition(this, world);
                 }
 
                 halfDir = new Position(0, direction.y);
-                if (world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, halfDir, distance, Size).Length == 0)
+                if (world.BoxCastinLine(Id, this, halfDir, distance).Length == 0)
                 {
                     SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
                     world.WorldRenderer?.UpdateEntityPosition(this, world);

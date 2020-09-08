@@ -64,14 +64,14 @@ public class World
         return i;
     }
 
-    public Entity[] BoxCastinLine(int entityToIgnoreId, Position roomPosition, Position pos, Position direction, int distance, Position size)
+    public Collision[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
     {
         if (distance % 2 == 1)
             throw new Exception("distance has to be dividable by 2");
 
-        List<Entity> colldingEntities = new List<Entity>();
+        List<Collision> colldingEntities = new List<Collision>();
 
-        Position destination = pos + direction * distance;
+        Position destination = movingObject.PositionInRoom + direction * distance;
         Position normal = Position.RightNormal(destination);
 
 
@@ -81,7 +81,7 @@ public class World
         {
             for (int y = -1; y < 2; y += 2)
             {
-                int distanceFormLine = Position.Dot(pos + new Position(x * size.x, y * size.y), normal);
+                int distanceFormLine = Position.Dot(movingObject.PositionInRoom + new Position(x * movingObject.Size.x, y * movingObject.Size.y), normal);
                 if (distanceFormLine < shortestDistancesFromLine)
                 {
                     shortestDistancesFromLine = distanceFormLine;
@@ -97,8 +97,8 @@ public class World
 
 
 
-        Position posBetweenOriginAndDest = pos + (direction * distance) / 2;
-        Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + size;
+        Position posBetweenOriginAndDest = movingObject.PositionInRoom + (direction * distance) / 2;
+        Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + movingObject.Size;
 
 
         Position dir = Position.zero;
@@ -108,16 +108,16 @@ public class World
             {
                 dir.x = x;
                 dir.y = y;
-                Position room2 = roomPosition + dir;
+                Position room2 = movingObject.CurrentRoom + dir;
                 if (GetRoom(room2) != null)
                 {
                     foreach (Entity entity in GetRoom(room2).entities)
                     {
-                        Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition);
+                        Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, movingObject.CurrentRoom);
                         if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
                         {
                             if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
-                                colldingEntities.Add(entity);
+                                colldingEntities.Add(new Collision(movingObject, entity, Position.zero, Position.zero));
                         }
 
 
@@ -154,6 +154,7 @@ public class World
 
         return null;
     }
+
 
 
     private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, int shortestDistancesFromLine1, int longestDistancesFromLine1)
