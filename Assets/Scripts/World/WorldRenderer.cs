@@ -11,5 +11,10 @@ public abstract class WorldRenderer
     public abstract void RemoveEntity(int id);
     public abstract void UpdateEntityPosition(Entity entity, World world);
 
+    public enum RenderPriority
+    {
+        FLOOR, WALL, DEFAULT, FOREGROUND
+    }
+
 }
 

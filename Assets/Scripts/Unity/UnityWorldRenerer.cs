@@ -40,14 +40,28 @@ class UnityWorldRenerer : WorldRenderer
         currentlyUsedObjects[entity.Id].name = entity.Name ?? entity.Id.ToString();
         currentlyUsedObjects[entity.Id].sprite = entity.SpriteId != null ? (spriteRegistry.ContainsKey(entity.SpriteId) ? spriteRegistry[entity.SpriteId] : spriteRegistry["default"]) : spriteRegistry["default"];
         currentlyUsedObjects[entity.Id].transform.localPosition = EntityPosToUnityPos(entity, world);
-        currentlyUsedObjects[entity.Id].gameObject.SetActive(true);
-        currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.RenderSize);
- 
+        currentlyUsedObjects[entity.Id].sortingOrder = (int)entity.RenderPrio;
+
+
+        if (entity.TileSize != Position.zero)
+        {
+            currentlyUsedObjects[entity.Id].drawMode = SpriteDrawMode.Tiled;
+            currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.TileSize);
+            currentlyUsedObjects[entity.Id].size = new Vector2(entity.RenderSize.x/ entity.TileSize.x, entity.RenderSize.y / entity.TileSize.y);
+        }
+        else
+        {
+            currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.RenderSize);
+        }
+        
 
         if (shouldCameraFollow)
         {
             cameraEntityToFollowId = entity.Id;
         }
+
+
+        currentlyUsedObjects[entity.Id].gameObject.SetActive(true);
     }
 
     public override void UpdateEntityPosition(Entity entity, World world)

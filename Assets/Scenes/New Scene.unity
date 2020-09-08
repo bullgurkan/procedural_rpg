@@ -238,6 +238,12 @@ MonoBehaviour:
   entityObjectPrefab: {fileID: 3287071421551747373, guid: e5c13273b29d6cf49b6d1826951ed364, type: 3}
   sprites:
   - {fileID: 21300000, guid: eb37c98025fdbd344ba3c8410d4dffac, type: 3}
+  - {fileID: 21300000, guid: ca1b49ac03d91c14ea235abb73b43829, type: 3}
+  - {fileID: 21300000, guid: 058905288cb906b4f8854147d160c6fd, type: 3}
+  spriteIds:
+  - default
+  - wall
+  - floor
 --- !u!4 &1715866251
 Transform:
   m_ObjectHideFlags: 0

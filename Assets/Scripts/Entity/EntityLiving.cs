@@ -17,7 +17,7 @@ public abstract class EntityLiving : Entity, ITickable
 
     public enum Stat
     {
-        MovementSpeed, AttackPower, AttackSpeed, Armor, FireResistance, WaterResistance, DarkResistance, EarthResistance, LightResistance, Luck, LifeSteal
+        MOVEMENT_SPEED, ATTACK_POWER, ATTACK_SPEED, ARMOR, FIRE_RESITANCE, WATER_RESITANCE, DARK_RESITANCE, EARTH_RESITANCE, LIGHT_RESITANCE, LUCK, LIFESTEAL
     }
 }
 

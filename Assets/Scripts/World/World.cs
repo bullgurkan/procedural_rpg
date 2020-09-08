@@ -23,9 +23,10 @@ public class World
             for (int y = 0; y < worldSizeY; y++)
             {
                 rooms[x][y] = new Room();
-                AddEntity(new Entity(Position.zero, Position.one * RoomSize, name: $"Room {x}, {y}"), new Position(x, y), Position.zero);
             }
         }
+
+        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY, this);
     }
 
     public void Tick()
@@ -94,40 +95,38 @@ public class World
             }
         }
 
- 
+
 
         Position posBetweenOriginAndDest = pos + (direction * distance) / 2;
         Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + size;
 
-        foreach (Entity entity in GetRoom(roomPosition).entities)
+
+        Position dir = Position.zero;
+        for (int x = -1; x < 2; x++)
         {
-            if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, entity.PositionInRoom, entity.Size))
+            for (int y = -1; y < 2; y++)
             {
-                if (IsDistanceToLineLongerThan(entity.PositionInRoom, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
-                    colldingEntities.Add(entity);
-            }
-                
-
-
-
-        }
-
-        foreach (Position direciton in Position.directions)
-        {
-            Position room2 = roomPosition + direciton;
-            if (GetRoom(room2) != null)
-            {
-                foreach (Entity entity in GetRoom(room2).entities)
+                dir.x = x;
+                dir.y = y;
+                Position room2 = roomPosition + dir;
+                if (GetRoom(room2) != null)
                 {
-                    Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, roomPosition, room2);
-                    if (IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
-                        if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
-                            colldingEntities.Add(entity);
-                        
-                }
-            }
+                    foreach (Entity entity in GetRoom(room2).entities)
+                    {
+                        Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition);
+                        if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
+                        {
+                            if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
+                                colldingEntities.Add(entity);
+                        }
 
+
+                    }
+                }
+
+            }
         }
+
 
         return colldingEntities.ToArray();
     }
@@ -147,7 +146,7 @@ public class World
             {
                 foreach (Entity entity in GetRoom(room2).entities)
                 {
-                    if (IsColliding(pos, size, ConvertPositionBetweenRooms(entity.PositionInRoom, roomPosition, room2), entity.Size))
+                    if (IsColliding(pos, size, ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition), entity.Size))
                         return entity;
                 }
             }
@@ -175,7 +174,7 @@ public class World
                 {
                     if (distanceFormLine < shortestDistancesFromLine2)
                         shortestDistancesFromLine2 = distanceFormLine;
-                    if(distanceFormLine > longestDistancesFromLine2)
+                    if (distanceFormLine > longestDistancesFromLine2)
                         longestDistancesFromLine2 = distanceFormLine;
                 }
             }
@@ -202,9 +201,9 @@ public class World
         return null;
     }
 
-    public Position ConvertPositionBetweenRooms(Position pos, Position room1, Position room2)
+    public Position ConvertPositionBetweenRooms(Position pos, Position roomWithPos, Position roomToConvertTo)
     {
-        return pos - (room2 - room1) * RoomSize;
+        return pos - (roomToConvertTo - roomWithPos) * RoomSize;
     }
 
     public Position RoomDeltaIfOutsideOfRoom(Position pos)

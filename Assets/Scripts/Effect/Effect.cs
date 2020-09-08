@@ -12,7 +12,7 @@ public class Effect
 
     public enum EventType
     {
-        OnDamage, OnEnemyHit, OnHeal, OnEnemyKill, OnActivation
+        ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_ACTIVATION
     }
 
     public Effect()

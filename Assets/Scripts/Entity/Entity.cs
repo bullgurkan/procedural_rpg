@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UIElements;
+using static WorldRenderer;
 
 public class Entity
 {
@@ -16,17 +11,24 @@ public class Entity
     public Position Size { get; private set; }
 
     public Position RenderSize { get; private set; }
-    public int Id { get; set; }
-    public string SpriteId { get; set; }
+    public Position TileSize { get; private set; }
 
-    public string Name { get; set; }
+    private int id = -1;
+    public int Id { get { return id; } set {if(id == -1) id = value; } }
+    public string SpriteId { get; private set; }
 
-    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null)
+    public string Name { get; private set; }
+
+    public RenderPriority RenderPrio { get; private set; }
+
+    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT)
     {
         Size = size;
         SpriteId = spriteId;
         RenderSize = renderSize ?? size;
         Name = name;
+        TileSize = tileSize ?? Position.zero;
+        RenderPrio = renderPriority;
     }
 
     public void MoveInLine(Position direction, int distance, World world, bool shouldSlide)
@@ -39,6 +41,8 @@ public class Entity
         }
         else
         {
+
+            //Debug.Log(CurrentRoom + " " + world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, direction, distance, Size)[0].Name);
             if (shouldSlide && direction.x != 0 && direction.y != 0)
             {
 

@@ -12,7 +12,7 @@ public class Character : EntityLiving
 
     public enum Slot
     {
-        Chest, Leg, Feet, Head, Ring, Amulet, Weapon, Cape
+        CHEST, LEG, FEET, HEAD, RING, AMULET, WEAPON, CAPE
     }
 
 
@@ -38,7 +38,7 @@ public class Character : EntityLiving
         {
             baseStats.Add(stat, 1);
         }
-        baseStats[Stat.AttackPower] = 10;
+        baseStats[Stat.ATTACK_POWER] = 10;
 
     }
     public void ChangeEquipment(Item item)
