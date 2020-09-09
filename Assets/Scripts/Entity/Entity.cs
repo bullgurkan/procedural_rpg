@@ -31,35 +31,40 @@ public class Entity
         RenderPrio = renderPriority;
     }
 
-    public void MoveInLine(Position direction, int distance, World world, bool shouldSlide)
+    public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
 
         if (world.BoxCastinLine(Id, this, direction, distance).Length == 0)
         {
             SetPositionInRoom(PositionInRoom + direction * distance, world, true);
             world.WorldRenderer?.UpdateEntityPosition(this, world);
+            return distance;
         }
         else
         {
-
-            //Debug.Log(CurrentRoom + " " + world.BoxCastinLine(Id, CurrentRoom, PositionInRoom, direction, distance, Size)[0].Name);
-            if (shouldSlide && direction.x != 0 && direction.y != 0)
+            
+            int distToMove = 0;
+            for (int i = 2; i < distance; i+=2)
             {
-
-                Position halfDir = new Position(direction.x, 0);
-                if (world.BoxCastinLine(Id, this, halfDir, distance).Length == 0)
+                if (world.BoxCastinLine(Id, this, direction, i).Length == 0)
                 {
-                    SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
-                    world.WorldRenderer?.UpdateEntityPosition(this, world);
-                }
-
-                halfDir = new Position(0, direction.y);
-                if (world.BoxCastinLine(Id, this, halfDir, distance).Length == 0)
-                {
-                    SetPositionInRoom(PositionInRoom + halfDir * distance, world, true);
-                    world.WorldRenderer?.UpdateEntityPosition(this, world);
+                    distToMove = i;
                 }
             }
+            SetPositionInRoom(PositionInRoom + direction * distToMove, world, true);
+
+            int distanceLeft = distance - distToMove;
+
+            if (shouldSlide && direction.x != 0 && direction.y != 0)
+            {
+                distanceLeft -=  MoveInLine(new Position(direction.x, 0), distanceLeft, world, false);
+                distanceLeft -= MoveInLine(new Position(0, direction.y), distanceLeft, world, false);
+            }
+
+
+            world.WorldRenderer?.UpdateEntityPosition(this, world);
+
+            return distance - distanceLeft;
         }
     }
     public void SetPositionInRoom(Position pos, World world, bool force)

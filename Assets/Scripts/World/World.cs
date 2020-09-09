@@ -64,12 +64,12 @@ public class World
         return i;
     }
 
-    public Collision[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
+    public Entity[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
     {
         if (distance % 2 == 1)
             throw new Exception("distance has to be dividable by 2");
 
-        List<Collision> colldingEntities = new List<Collision>();
+        List<Entity> colldingEntities = new List<Entity>();
 
         Position destination = movingObject.PositionInRoom + direction * distance;
         Position normal = Position.RightNormal(destination);
@@ -117,7 +117,7 @@ public class World
                         if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
                         {
                             if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
-                                colldingEntities.Add(new Collision(movingObject, entity, Position.zero, Position.zero));
+                                colldingEntities.Add(entity);
                         }
 
 
