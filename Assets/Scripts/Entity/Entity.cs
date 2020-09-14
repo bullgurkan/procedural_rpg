@@ -14,7 +14,7 @@ public class Entity
     public Position TileSize { get; private set; }
 
     private int id = -1;
-    public int Id { get { return id; } set {if(id == -1) id = value; } }
+    public int Id { get { return id; } set { if (id == -1) id = value; } }
     public string SpriteId { get; private set; }
 
     public string Name { get; private set; }
@@ -33,7 +33,30 @@ public class Entity
 
     public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
+        int distanceLeft = distance;
+        for (; distanceLeft > 0; distanceLeft--)
+        {
+            if (world.CheckEntityMovement(this, PositionInRoom + direction) == null)
+                SetPositionInRoom(PositionInRoom + direction, world, true);
+            else
+                break;
+                
 
+        }
+        
+        if (shouldSlide && direction.x != 0 && direction.y != 0)
+        {
+            distanceLeft -= MoveInLine(new Position(direction.x, 0), distanceLeft, world, false);
+            distanceLeft -= MoveInLine(new Position(0, direction.y), distanceLeft, world, false);
+        }
+        
+
+        world.WorldRenderer?.UpdateEntityPosition(this, world);
+
+        return distance - distanceLeft;
+
+
+        /*
         if (world.BoxCastinLine(Id, this, direction, distance).Length == 0)
         {
             SetPositionInRoom(PositionInRoom + direction * distance, world, true);
@@ -66,6 +89,7 @@ public class Entity
 
             return distance - distanceLeft;
         }
+        */
     }
     public void SetPositionInRoom(Position pos, World world, bool force)
     {

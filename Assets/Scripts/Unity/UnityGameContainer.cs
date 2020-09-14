@@ -48,7 +48,7 @@ class UnityGameContainer : MonoBehaviour
     {
         //input = input.normalized * 4;
         if(input != Vector2.zero)
-            e.MoveInLine(new Position((int)input.x, (int)input.y), 1000, world, true);
+            e.MoveInLine(new Position((int)input.x, (int)input.y), 100, world, true);
         input = Vector2.zero;
 
         world.Tick();

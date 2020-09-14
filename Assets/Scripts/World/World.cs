@@ -10,6 +10,7 @@ public class World
     public int RoomSize { get; private set; }
     public WorldRenderer WorldRenderer { get; private set; }
 
+
     public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer)
     {
         RoomSize = roomSize;
@@ -26,7 +27,7 @@ public class World
             }
         }
 
-        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY, this);
+        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY);
     }
 
     public void Tick()
@@ -155,6 +156,34 @@ public class World
         return null;
     }
 
+    public Entity CheckEntityMovement(Entity entityToCast, Position pos)
+    {
+
+        Position dir = Position.zero;
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
+            {
+                dir.x = x;
+                dir.y = y;
+                Position room2 = entityToCast.CurrentRoom + dir;
+                if (GetRoom(room2) != null)
+                {
+                    foreach (Entity entity in GetRoom(room2).entities)
+                    {
+                        Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, entityToCast.CurrentRoom);
+                        if (entityToCast.Id != entity.Id && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
+                            return entity;
+
+                    }
+                }
+
+            }
+        }
+
+        return null;
+    }
+
 
 
     private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, int shortestDistancesFromLine1, int longestDistancesFromLine1)
@@ -197,7 +226,7 @@ public class World
 
     public Room GetRoom(Position roomPosition)
     {
-        if (roomPosition.x >= 0 && roomPosition.x < rooms.Length && roomPosition.y >= 0 && roomPosition.y < rooms[roomPosition.x].Length)
+        if (RoomInBounds(roomPosition))
             return rooms[roomPosition.x][roomPosition.y];
         return null;
     }
@@ -210,6 +239,11 @@ public class World
     public Position RoomDeltaIfOutsideOfRoom(Position pos)
     {
         return new Position(pos.x / (RoomSize / 2), pos.y / (RoomSize / 2));
+    }
+
+    public bool RoomInBounds(Position roomPosition)
+    {
+        return roomPosition.x >= 0 && roomPosition.x < rooms.Length && roomPosition.y >= 0 && roomPosition.y < rooms[roomPosition.x].Length;
     }
 }
 
