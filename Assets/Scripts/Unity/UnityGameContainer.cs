@@ -27,16 +27,7 @@ class UnityGameContainer : MonoBehaviour
         world = new World(10,10,7600,worldRenerer);
 
         e = new Entity(Position.one * 400, name: "Player");
-        world.AddEntity(e, Position.zero, Position.zero, true);
-        world.AddEntity(new Entity(Position.one * 400, name: "Rock"), Position.zero, Position.down * 400);
-
-        e.MoveInLine(Position.down, 2, world, false);
-
-        Projectile p = new Projectile(Position.one * 300, new Position(1, 0), name:"Proj");
-        world.AddEntity(p, Position.zero, Position.up * 800);
-        //e.MoveInLine(Position.up, 2, world);
-
-        world.Tick();
+        world.AddEntity(e, Position.one * 5, Position.zero, true);
     }
 
     void Update()

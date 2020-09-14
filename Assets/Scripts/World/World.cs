@@ -27,7 +27,7 @@ public class World
             }
         }
 
-        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY);
+        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY, this);
     }
 
     public void Tick()

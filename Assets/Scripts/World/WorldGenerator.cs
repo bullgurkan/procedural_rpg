@@ -11,6 +11,8 @@ public class WorldGenerator
     RenderPriority wallRenderPrio = RenderPriority.WALL;
     RenderPriority floorRenderPrio = RenderPriority.FLOOR;
 
+
+
     string wallSprite, floorSprite;
 
     public WorldGenerator(int seed, int wallWidth, int doorWithInTiles, string wallSprite, string floorSprite)
@@ -26,33 +28,33 @@ public class WorldGenerator
     {
         CLOSED, DOOR, OPEN
     }
-    public void PopulateWorld(int worldSizeX, int worldSizeY)
+    public void PopulateWorld(int worldSizeX, int worldSizeY, World world)
     {
+        RoomSide[][][] roomMap = GenerateRoomMap(worldSizeX, worldSizeY, world);
 
-        //right, left, up, down (same order as Position.directions)
-        //Dictionary<Room>
+        GenerateRoomEntitiesFromMap(roomMap, worldSizeX, worldSizeY, world);
+    }
+
+    private RoomSide[][][] GenerateRoomMap(int worldSizeX, int worldSizeY, World world)
+    {
+        //right, left, up, down (same order as Position.directions), distanceFromStart
         RoomSide[][][] roomMap = new RoomSide[worldSizeX][][];
         for (int x = 0; x < worldSizeX; x++)
-        {
             roomMap[x] = new RoomSide[worldSizeY][];
-            for (int y = 0; y < worldSizeY; y++)
-            {
-                //roomMap[x][y] = new RoomSide[4];
-            }
-        }
 
 
 
-        Position pos = new Position(0, 0);
+        Position pos = new Position(worldSizeX/2, worldSizeY/2);
         Position dir = new Position();
 
-        roomMap[pos.x][pos.y] = new RoomSide[4];
+        roomMap[pos.x][pos.y] = new RoomSide[5];
 
-        int steps = 200;
+        int roomAmountToGenerate = 40;
 
+        List<Position> roomsWithEmptyNeighbour = new List<Position>();
         List<Position> validMoves = new List<Position>();
 
-        for (int i = 0; i < steps; i++)
+        for (int i = 1; i < roomAmountToGenerate; i++)
         {
             while (dir == Position.zero)
             {
@@ -66,9 +68,31 @@ public class WorldGenerator
                     }
 
                 }
+
+                if(roomsWithEmptyNeighbour.Count > 0 && random.Next(0, 10) == 0)
+                {
+                    pos = roomsWithEmptyNeighbour[0];
+                    roomsWithEmptyNeighbour.RemoveAt(0);
+                    continue;
+                }
+
                 //Debug.Log(validMoves.Count);
                 if (validMoves.Count == 0)
-                    break;
+                {
+                    if (roomsWithEmptyNeighbour.Count > 0)
+                    {
+                        pos = roomsWithEmptyNeighbour[0];
+                        roomsWithEmptyNeighbour.RemoveAt(0);
+                        continue;
+                    }
+                    else
+                        break;
+                   
+                }
+                    
+
+                if (validMoves.Count > 1)
+                    roomsWithEmptyNeighbour.Add(pos);
 
                 dir = validMoves[random.Next(validMoves.Count)];
 
@@ -86,8 +110,9 @@ public class WorldGenerator
                 if (-dir == Position.directions[f])
                 {
 
-                    roomMap[pos.x + dir.x][pos.y + dir.y] = new RoomSide[4];
+                    roomMap[pos.x + dir.x][pos.y + dir.y] = new RoomSide[5];
                     roomMap[pos.x + dir.x][pos.y + dir.y][f] = rs;
+                    roomMap[pos.x + dir.x][pos.y + dir.y][4] = roomMap[pos.x][pos.y][4] + 1;
                 }
 
             }
@@ -98,51 +123,35 @@ public class WorldGenerator
             dir = Position.zero;
 
         }
-
+        return roomMap;
+    }
+    private void GenerateRoomEntitiesFromMap(RoomSide[][][] roomMap, int worldSizeX, int worldSizeY, World world)
+    {
         Position tileWidth = Position.one * wallWidth;
-
-
-
-        world.AddEntity(new Entity(Position.one * wallWidth, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"RoomConer (0, 0) at dir (-1, -1)"), Position.zero, -Position.one * (world.RoomSize / 2));
 
         for (int x = 0; x < worldSizeX; x++)
         {
             for (int y = 0; y < worldSizeY; y++)
             {
                 if (roomMap[x][y] != null)
-                    for (int i = 0; i < roomMap[x][y].Length; i++)
+                    for (int i = 0; i < Position.directions.Length; i++)
                     {
                         //floor
                         world.AddEntity(new Entity(Position.zero, renderPriority: floorRenderPrio, renderSize: Position.one * world.RoomSize, tileSize: tileWidth, spriteId: floorSprite, name: $"RoomFloor {x},{y}"), new Position(x, y), Position.zero);
 
-                        //corners
-                        if (x == 0)
-                            world.AddEntity(new Entity(Position.one * wallWidth, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"RoomConer ({x}, {y}) at dir (-1, 1)"), new Position(x, y), (Position.left + Position.up) * (world.RoomSize / 2));
-                        if (y == 0)
-                            world.AddEntity(new Entity(Position.one * wallWidth, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"RoomConer ({x}, {y}) at dir (1, -1)"), new Position(x, y), (Position.right + Position.down) * (world.RoomSize / 2));
+                        Position cornerDir = Position.directions[i] + Position.RightNormal(Position.directions[i]);
+                        Position neighbourRoom = new Position(x, y) + cornerDir;
 
-                        world.AddEntity(new Entity(Position.one * wallWidth, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"RoomConer ({x}, {y}) at dir (1, 1)"), new Position(x, y), Position.one * (world.RoomSize / 2));
 
                         if (Position.directions[i].x > 0 || Position.directions[i].y > 0 || !world.RoomInBounds(neighbourRoom) || roomMap[neighbourRoom.x][neighbourRoom.y] == null)
                         {
-                            Position normal = Position.RightNormal(Position.directions[i]);
-                            if (roomMap[x][y][i] == RoomSide.CLOSED)
-                            {
-                                Position size = new Position(Math.Abs(normal.x), Math.Abs(normal.y)) * (world.RoomSize - wallWidth) + Position.directions[i - i % 2] * wallWidth;
-                                world.AddEntity(new Entity(size, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"Wall in room ({x}, {y}) at dir {Position.directions[i]}"), new Position(x, y), Position.directions[i] * (world.RoomSize / 2));
-                            }
-                            else
-                            {
-                                Position size = new Position(Math.Abs(normal.x), Math.Abs(normal.y)) * (world.RoomSize / 2 - wallWidth / 2 - doorWidth / 2) + Position.directions[i - i % 2] * wallWidth;
-                                int doorOffsetFromMiddle = world.RoomSize / 4 - wallWidth / 4 - doorWidth / 4 + doorWidth / 2;
-                                world.AddEntity(new Entity(size, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"DoorWall in room ({x}, {y}) at dir {Position.directions[i]}"), new Position(x, y), Position.directions[i] * (world.RoomSize / 2) + normal * doorOffsetFromMiddle);
-                                world.AddEntity(new Entity(size, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"DoorWall in room ({x}, {y}) at dir {Position.directions[i]}"), new Position(x, y), Position.directions[i] * (world.RoomSize / 2) + normal * -doorOffsetFromMiddle);
-                            }
+                            world.AddEntity(new Entity(cornerDir * wallWidth, renderPriority: wallRenderPrio, tileSize: tileWidth, spriteId: wallSprite, name: $"RoomConer ({x}, {y}) at dir {cornerDir}"), new Position(x, y), cornerDir * (world.RoomSize / 2));
                         }
+
                         //walls
                         if (roomMap[x][y][i] != RoomSide.OPEN)
                         {
-                            Position neighbourRoom = new Position(x, y) + Position.directions[i];
+                            neighbourRoom = new Position(x, y) + Position.directions[i];
                             if (Position.directions[i].x > 0 || Position.directions[i].y > 0 || !world.RoomInBounds(neighbourRoom) || roomMap[neighbourRoom.x][neighbourRoom.y] == null)
                             {
                                 Position normal = Position.RightNormal(Position.directions[i]);
@@ -166,15 +175,6 @@ public class WorldGenerator
                     }
             }
         }
-
-
-
-        //world.AddEntity(new Entity(Position.zero, Position.one * world.RoomSize, name: $"Room {x}, {y}"), new Position(x, y), Position.zero);
-    }
-
-    private void PopulateRoom()
-    {
-
     }
 
 }

@@ -58,6 +58,7 @@ class UnityWorldRenerer : WorldRenderer
         if (shouldCameraFollow)
         {
             cameraEntityToFollowId = entity.Id;
+            UpdateEntityPosition(entity, world);
         }
 
 
