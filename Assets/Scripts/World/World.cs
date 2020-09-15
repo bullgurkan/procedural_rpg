@@ -9,25 +9,24 @@ public class World
     Room[][] rooms;
     public int RoomSize { get; private set; }
     public WorldRenderer WorldRenderer { get; private set; }
+    public readonly Position worldSize;
+    public List<Character> players;
 
 
-    public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer)
+    public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer, List<Character> players)
     {
         RoomSize = roomSize;
         WorldRenderer = worldRenderer;
         entities = new Dictionary<int, Entity>();
         tickables = new List<ITickable>();
-        rooms = new Room[worldSizeX][];
-        for (int x = 0; x < worldSizeX; x++)
-        {
-            rooms[x] = new Room[worldSizeY];
-            for (int y = 0; y < worldSizeY; y++)
-            {
-                rooms[x][y] = new Room();
-            }
-        }
+        this.players = players;
+        worldSize = new Position(worldSizeX, worldSizeY);
 
-        new WorldGenerator(1, 760, 3, "wall", "floor").PopulateWorld(worldSizeX, worldSizeY, this);
+        WorldGenerator worldGen = new WorldGenerator(1, 760, 3, "wall", "floor", 50, 1);
+        rooms = worldGen.GenerateRoomMap(this);
+        worldGen.GenerateRoomWalls(this);
+        worldGen.GenerateRoomContents(this);
+
     }
 
     public void Tick()
@@ -54,6 +53,17 @@ public class World
 
         WorldRenderer.AddEntity(entity, this, shouldCameraFollow);
     }
+
+    public void RemoveEntity(int id)
+    {
+        if (entities[id] is ITickable)
+            tickables.Remove((ITickable)entities[id]);
+
+        entities.Remove(id);
+
+        WorldRenderer.RemoveEntity(id);
+    }
+
 
 
     //This will be horrible with a lot of entities and should be replaced later
@@ -243,7 +253,7 @@ public class World
 
     public bool RoomInBounds(Position roomPosition)
     {
-        return roomPosition.x >= 0 && roomPosition.x < rooms.Length && roomPosition.y >= 0 && roomPosition.y < rooms[roomPosition.x].Length;
+        return roomPosition.x >= 0 && roomPosition.x < worldSize.x && roomPosition.y >= 0 && roomPosition.y < worldSize.y;
     }
 }
 

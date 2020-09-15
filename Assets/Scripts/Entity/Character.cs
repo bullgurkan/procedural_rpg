@@ -16,7 +16,7 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position size, string spriteId) : base(size, spriteId)
+    public Character(Position size, string spriteId = null, string name = null) : base(size, spriteId, name)
     {
         stats = new Dictionary<Stat, float>();
         effects = new List<Effect>();
@@ -69,6 +69,6 @@ public class Character : EntityLiving
 
     public override void Tick(World world)
     {
-        throw new System.NotImplementedException();
+
     }
 }

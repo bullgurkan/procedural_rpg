@@ -98,7 +98,7 @@ public class Entity
         {
             PositionInRoom = scaledPos;
 
-            Position roomDelta = world.RoomDeltaIfOutsideOfRoom(PositionInRoom);
+            Position roomDelta = world?.RoomDeltaIfOutsideOfRoom(PositionInRoom) ?? Position.zero;
             if (roomDelta != Position.zero)
                 SetCurrentRoom(CurrentRoom + roomDelta, world);
         }
@@ -108,7 +108,7 @@ public class Entity
     {
         if (world.GetRoom(room) != null)
         {
-            world.GetRoom(CurrentRoom).entities.Remove(this);
+            world.GetRoom(CurrentRoom)?.entities.Remove(this);
             world.GetRoom(room).entities.Add(this);
             PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
             CurrentRoom = room;

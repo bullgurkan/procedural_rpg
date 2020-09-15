@@ -12,7 +12,7 @@ class UnityGameContainer : MonoBehaviour
     public List<string> spriteIds;
 
     Vector2 input;
-    Entity e;
+    Character e;
     World world;
     private void Start()
     {
@@ -24,10 +24,13 @@ class UnityGameContainer : MonoBehaviour
         //spriteReg.Add("default", sprites[0]);
         UnityWorldRenerer worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 1000);
 
-        world = new World(10,10,7600,worldRenerer);
+        e = new Character(Position.one * 400, name: "Player");
 
-        e = new Entity(Position.one * 400, name: "Player");
-        world.AddEntity(e, Position.one * 5, Position.zero, true);
+        List<Character> players = new List<Character>();
+        players.Add(e);
+
+        world = new World(10,10,7600,worldRenerer, players);
+
     }
 
     void Update()
