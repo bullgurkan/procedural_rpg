@@ -24,7 +24,7 @@ class UnityGameContainer : MonoBehaviour
         //spriteReg.Add("default", sprites[0]);
         UnityWorldRenerer worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 1000);
 
-        e = new Character(Position.one * 400, name: "Player");
+        e = new Character(Position.one * 400, 760, name: "Player");
 
         List<Character> players = new List<Character>();
         players.Add(e);

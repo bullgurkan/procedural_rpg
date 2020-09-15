@@ -7,7 +7,7 @@ public class Entity
     public Position CurrentRoom { get; private set; }
 
     //size and pos in room will be scaled by world accuracy
-    public Position PositionInRoom { get; private set; }
+    public Position PositionInRoom { get; protected set; }
     public Position Size { get; private set; }
 
     public Position RenderSize { get; private set; }
@@ -91,12 +91,13 @@ public class Entity
         }
         */
     }
-    public void SetPositionInRoom(Position pos, World world, bool force)
+    public virtual void SetPositionInRoom(Position pos, World world, bool force)
     {
         Position scaledPos = pos;
         if (force || world.BoxCast(CurrentRoom, scaledPos, Size) == null)
         {
             PositionInRoom = scaledPos;
+            OnPositionChange(world);
 
             Position roomDelta = world?.RoomDeltaIfOutsideOfRoom(PositionInRoom) ?? Position.zero;
             if (roomDelta != Position.zero)
@@ -112,6 +113,7 @@ public class Entity
             world.GetRoom(room).entities.Add(this);
             PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
             CurrentRoom = room;
+            OnRoomChange(world);
         }
 
     }
@@ -126,6 +128,8 @@ public class Entity
         }
     }
 
+    public virtual void OnRoomChange(World world) {}
+    public virtual void OnPositionChange(World world) {}
 
 
 }

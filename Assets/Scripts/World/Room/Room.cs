@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using UnityEngine;
 
 public class Room
 {
@@ -43,7 +43,7 @@ public class Room
     public void AddRoomLock(World world, Position roomThatLocked)
     {
         roomLocks.Add(roomThatLocked);
-        if(roomLocks.Count > 0)
+        if(roomLocks.Count == 1)
             Lock(world);
     }
 
@@ -69,6 +69,12 @@ public class Room
         {
             world.RemoveEntity(door.Id);
         }
+    }
+
+    public void OnRoomEnter(World world, Character character)
+    {
+        Debug.Log(roomLogic);
+        roomLogic?.OnRoomEnter(world, this, character);
     }
 }
 

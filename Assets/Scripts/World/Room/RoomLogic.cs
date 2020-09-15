@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 
 public abstract class RoomLogic
 {
-    public abstract void OnRoomEnter(World world, Character player);
+    public abstract void OnRoomEnter(World world, Room room, Character player);
 
     public void Generate(World world, Random rand, List<Room> emptyRooms, int difficulty)
     {
-        OnGeneration(world, PickRoomPosition(world, rand, emptyRooms), difficulty);
+        Room room = PickRoomPosition(world, rand, emptyRooms);
+        OnGeneration(world, room, difficulty);
+        room.roomLogic = this;
     }
     protected abstract void OnGeneration(World world, Room roomToGenerate, int difficulty);
     protected virtual Room PickRoomPosition(World world, Random rand, List<Room> emptyRooms)

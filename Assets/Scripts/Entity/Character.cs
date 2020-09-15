@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Character : EntityLiving
 {
@@ -9,6 +10,9 @@ public class Character : EntityLiving
 
     Dictionary<Stat, float> baseStats;
 
+    private bool triggeredRoomEnter;
+    private int wallWidth;
+
 
     public enum Slot
     {
@@ -16,12 +20,12 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position size, string spriteId = null, string name = null) : base(size, spriteId, name)
+    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name)
     {
         stats = new Dictionary<Stat, float>();
         effects = new List<Effect>();
         items = new Dictionary<Slot, Item>();
-
+        this.wallWidth = wallWidth;
 
         GenerateBaseStats();
         foreach (var stat in baseStats)
@@ -65,6 +69,19 @@ public class Character : EntityLiving
             effect.ModifyStats(this);
         }
 
+    }
+
+    public override void OnRoomChange(World world)
+    {
+        triggeredRoomEnter = false;
+    }
+    public override void OnPositionChange(World world)
+    {
+        if (!triggeredRoomEnter && PositionInRoom.x < world.RoomSize/2 - (Size.x + wallWidth) && PositionInRoom.x > (Size.x + wallWidth) - world.RoomSize/2 && PositionInRoom.y < world.RoomSize/2 - (Size.y + wallWidth) && PositionInRoom.y > (Size.y + wallWidth) - world.RoomSize/2)
+        { 
+            world.GetRoom(CurrentRoom).OnRoomEnter(world, this);
+            triggeredRoomEnter = true;
+        }
     }
 
     public override void Tick(World world)

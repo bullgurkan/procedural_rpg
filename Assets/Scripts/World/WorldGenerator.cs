@@ -8,14 +8,14 @@ using static Room;
 public class WorldGenerator
 {
     System.Random random;
-    
+
     RenderPriority wallRenderPrio = RenderPriority.WALL;
     RenderPriority floorRenderPrio = RenderPriority.FLOOR;
-    
+
 
     int amountOfRoomsToGenerate;
     int difficulty;
-    Dictionary<RoomLogic, int> roomsWithLogicToGenerate;
+    List<RoomLogic> roomsWithLogicToGenerate;
     List<RoomLogic> roomLogicRegistry;
 
     string wallSprite, floorSprite;
@@ -33,7 +33,7 @@ public class WorldGenerator
         doorWidth = wallWidth * doorWithInTiles;
         difficulty = startingDifficulty;
         roomLogicRegistry = new List<RoomLogic>();
-        roomsWithLogicToGenerate = new Dictionary<RoomLogic, int>();
+        roomsWithLogicToGenerate = new List<RoomLogic>();
 
         amountOfRoomsToGenerate = random.Next(10, 20 + difficulty);
 
@@ -41,21 +41,18 @@ public class WorldGenerator
 
 
 
-        roomsWithLogicToGenerate.Add(new StartRoomLogic(), 1);
-        roomsWithLogicToGenerate.Add(new ExitRoomLogic(), 1);
+        roomsWithLogicToGenerate.Add(new StartRoomLogic());
+        roomsWithLogicToGenerate.Add(new ExitRoomLogic());
 
-        if(roomLogicRegistry.Count > 0)
+        if (roomLogicRegistry.Count > 0)
         {
             for (int i = 0; i < amountOfRoomsToGenerate * 100 / precentOfRoomWithLogic; i++)
             {
-                RoomLogic logic = roomLogicRegistry[random.Next(roomLogicRegistry.Count)];
-                if (roomsWithLogicToGenerate.ContainsKey(logic))
-                    roomsWithLogicToGenerate[logic]++;
-                else
-                    roomsWithLogicToGenerate.Add(logic, 1);
+                roomsWithLogicToGenerate.Add(roomLogicRegistry[random.Next(roomLogicRegistry.Count)]);
+
             }
         }
-        
+
 
     }
 
@@ -181,7 +178,7 @@ public class WorldGenerator
 
                             if (Position.directions[i].x > 0 || Position.directions[i].y > 0 || neighbourRoom == null)
                             {
-                                
+
                                 if (room.roomSides[i] == RoomSide.CLOSED)
                                 {
                                     Position size = absNormal * (world.RoomSize - wallWidth) + Position.directions[i - i % 2] * wallWidth;
@@ -201,7 +198,7 @@ public class WorldGenerator
                                 Position size = absNormal * doorWidth + Position.directions[i - i % 2] * wallWidth;
                                 room.AddDoor(new Entity(size, null, wallSprite, $"Door in room {room.RoomPosition}", tileSize, wallRenderPrio), Position.directions[i] * (world.RoomSize / 2));
                             }
-                                
+
                         }
 
 
@@ -229,13 +226,10 @@ public class WorldGenerator
                     emptyRooms.Add(room);
             }
 
-        foreach (KeyValuePair<RoomLogic, int> roomAndAmount in roomsWithLogicToGenerate)
+        foreach (RoomLogic room in roomsWithLogicToGenerate)
         {
-            for (int i = 0; i < roomAndAmount.Value; i++)
-            {
-                if(emptyRooms.Count > 0)
-                    roomAndAmount.Key.Generate(world, random, emptyRooms, difficulty);
-            }
+            if (emptyRooms.Count > 0)
+                room.Generate(world, random, emptyRooms, difficulty);
         }
 
     }

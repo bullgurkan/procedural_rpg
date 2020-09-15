@@ -9,7 +9,7 @@ public abstract class EntityLiving : Entity, ITickable
 {
     protected Dictionary<Stat, float> stats;
 
-    public EntityLiving(Position size, string spriteId, string name) : base(size, spriteId: spriteId, name: name)
+    public EntityLiving(Position size, string spriteId, string name, Position? renderSize = null) : base(size, renderSize, spriteId, name)
     {
 
     }

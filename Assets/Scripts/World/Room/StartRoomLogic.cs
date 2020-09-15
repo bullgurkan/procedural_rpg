@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 public class StartRoomLogic : RoomLogic
 {
+    public override void OnRoomEnter(World world, Room room, Character player)
+    {
+       
+    }
+
     protected override void OnGeneration(World world, Room room, int difficulty)
     {
         int currentPos = 0;
@@ -17,10 +22,6 @@ public class StartRoomLogic : RoomLogic
         
     }
 
-    public override void OnRoomEnter(World world, Character player)
-    {
-        throw new NotImplementedException();
-    }
 
     protected override Room PickRoomPosition(World world, Random rand, List<Room> emptyRooms)
     {
