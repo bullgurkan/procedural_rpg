@@ -14,11 +14,16 @@ public class RoomLogicTrapAmbush : RoomLogic
     {
         enemies = new List<EntityLiving>();
     }
+
+    public override RoomLogic CreateNew()
+    {
+        return new RoomLogicTrapAmbush();
+    }
     public override void OnRoomEnter(World world, Room room, Character player)
     {
         if (!triggered)
         {
-            room.AddRoomLock(world, room.RoomPosition);
+            room.AddRoomLockToMultRoom(world, room.RoomPosition);
 
             foreach(EntityLiving enemy in enemies)
             {
@@ -32,7 +37,7 @@ public class RoomLogicTrapAmbush : RoomLogic
 
     protected override void OnGeneration(World world, Room room, int difficulty)
     {
-        //enemies.Add(new Enemy());
+        enemies.Add(new Enemy(new EnemyTypeCharger(Position.one * 400, "Wall", "Charger"), Position.zero, 60));
     }
 }
     

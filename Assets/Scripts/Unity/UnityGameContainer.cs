@@ -12,6 +12,8 @@ class UnityGameContainer : MonoBehaviour
     public List<string> spriteIds;
 
     Vector2 input;
+    bool activated;
+    Vector2 mousePos;
     Character e;
     World world;
     private void Start()
@@ -29,21 +31,40 @@ class UnityGameContainer : MonoBehaviour
         List<Character> players = new List<Character>();
         players.Add(e);
 
-        world = new World(10,10,7600,worldRenerer, players);
+        world = new World(10, 10, 7600, worldRenerer, players);
+
+        Item item = new Item();
+        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 10));
+
+
+        e.ChangeEquipment(item);
 
     }
 
     void Update()
     {
         input += new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * Time.deltaTime * 60;
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            mousePos = Input.mousePosition;
+            activated = true;
+        }
+
     }
 
     private void FixedUpdate()
     {
         //input = input.normalized * 4;
-        if(input != Vector2.zero)
+        if (input != Vector2.zero)
             e.MoveInLine(new Position((int)input.x, (int)input.y), 100, world, true);
         input = Vector2.zero;
+
+        if (activated)
+        {
+            e.Activate(world, new Position((int)mousePos.x, (int)mousePos.y));
+            activated = false;
+        }
+           
 
         world.Tick();
     }

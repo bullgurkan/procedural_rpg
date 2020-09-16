@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 public class StartRoomLogic : RoomLogic
 {
+    public override RoomLogic CreateNew()
+    {
+        return new StartRoomLogic();
+    }
+
     public override void OnRoomEnter(World world, Room room, Character player)
     {
        

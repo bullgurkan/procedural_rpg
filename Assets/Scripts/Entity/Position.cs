@@ -27,6 +27,7 @@ public struct Position
 
     public static Position operator *(Position a, int b) => new Position(a.x * b, a.y * b);
     public static Position operator /(Position a, int b) => new Position(a.x / b, a.y / b);
+    public static Position operator /(Position a, double b) => new Position((int)(a.x / b), (int)(a.y / b));
     public static Position operator -(Position a) => a * -1;
     public static Position operator +(Position a) => a;
     public static Position operator +(Position a, Position b) => new Position(a.x + b.x, a.y + b.y);
@@ -35,10 +36,12 @@ public struct Position
 
     public static bool operator ==(Position a, Position b) => a.x == b.x && a.y == b.y;
     public static bool operator !=(Position a, Position b) => !(a == b);
-    public static int Dot(Position a, Position b) => a.x * b.x + a.y * b.y;
-    public static int Cross(Position a, Position b) => a.x * b.y - a.y * b.x;
+    //public static int Dot(Position a, Position b) => a.x * b.x + a.y * b.y;
+    //public static int Cross(Position a, Position b) => a.x * b.y - a.y * b.x;
     public static Position RightNormal(Position a) => new Position(-a.y, a.x);
 
+
+    public double Magnitude { get { return Math.Sqrt(x * x + y * y); } }
     public override string ToString() => $"({x}, {y})";
     public override bool Equals(object obj) => base.Equals(obj);
     public override int GetHashCode() => base.GetHashCode();

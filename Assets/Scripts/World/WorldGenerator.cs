@@ -46,9 +46,9 @@ public class WorldGenerator
 
         if (roomLogicRegistry.Count > 0)
         {
-            for (int i = 0; i < amountOfRoomsToGenerate * 100 / precentOfRoomWithLogic; i++)
+            for (int i = 0; i < (amountOfRoomsToGenerate * precentOfRoomWithLogic)/100; i++)
             {
-                roomsWithLogicToGenerate.Add(roomLogicRegistry[random.Next(roomLogicRegistry.Count)]);
+                roomsWithLogicToGenerate.Add(roomLogicRegistry[random.Next(roomLogicRegistry.Count)].CreateNew());
 
             }
         }

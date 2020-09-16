@@ -74,6 +74,7 @@ public class World
             i++;
         return i;
     }
+    /*
 
     public Entity[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
     {
@@ -142,6 +143,8 @@ public class World
         return colldingEntities.ToArray();
     }
 
+    */
+
     public Entity BoxCast(Position roomPosition, Position pos, Position size)
     {
         foreach (Entity entity in GetRoom(roomPosition).entities)
@@ -195,7 +198,7 @@ public class World
     }
 
 
-
+    /*
     private bool IsDistanceToLineLongerThan(Position boxPos, Position boxSize, Position normal, int shortestDistancesFromLine1, int longestDistancesFromLine1)
     {
 
@@ -222,7 +225,7 @@ public class World
 
         return shortestDistancesFromLine2 > 0 != longestDistancesFromLine2 > 0;
     }
-
+    */
     protected bool IsColliding(Position pos1, Position size1, Position pos2, Position size2)
     {
         if (size1 == Position.zero || size2 == Position.zero)

@@ -40,14 +40,14 @@ public class Room
         door.SetPositionInRoom(pos, null, true);
         doors.Add(door);
     }
-    public void AddRoomLock(World world, Position roomThatLocked)
+    private void AddRoomLock(World world, Position roomThatLocked)
     {
         roomLocks.Add(roomThatLocked);
         if(roomLocks.Count == 1)
             Lock(world);
     }
 
-    public void RemoveRoomLock(World world,  Position roomThatLocked)
+    private void RemoveRoomLock(World world,  Position roomThatLocked)
     {
         roomLocks.Remove(roomThatLocked);
         if (roomLocks.Count == 0)
@@ -73,8 +73,34 @@ public class Room
 
     public void OnRoomEnter(World world, Character character)
     {
-        Debug.Log(roomLogic);
         roomLogic?.OnRoomEnter(world, this, character);
+    }
+
+    public void AddRoomLockToMultRoom(World world, Position roomThatLocked)
+    {
+        if (!roomLocks.Contains(roomThatLocked))
+        {
+            AddRoomLock(world, roomThatLocked);
+            for (int i = 0; i < roomSides.Length; i++)
+            {
+                if (roomSides[i] == RoomSide.OPEN)
+                    world.GetRoom(RoomPosition + Position.directions[i]).AddRoomLockToMultRoom(world, roomThatLocked);
+            }
+        }
+        
+    }
+
+    public void RemoveRoomLockFromMultRoom(World world, Position roomThatLocked)
+    {
+        if (roomLocks.Contains(roomThatLocked))
+        {
+            RemoveRoomLock(world, roomThatLocked);
+            for (int i = 0; i < roomSides.Length; i++)
+            {
+                if (roomSides[i] == RoomSide.OPEN)
+                    world.GetRoom(RoomPosition + Position.directions[i]).RemoveRoomLockFromMultRoom(world, roomThatLocked);
+            }
+        }
     }
 }
 

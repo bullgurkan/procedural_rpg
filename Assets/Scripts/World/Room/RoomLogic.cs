@@ -24,5 +24,7 @@ public abstract class RoomLogic
         emptyRooms.RemoveAt(index);
         return room;
     }
+
+    public abstract RoomLogic CreateNew();
 }
 

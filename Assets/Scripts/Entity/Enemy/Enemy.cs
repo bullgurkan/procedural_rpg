@@ -28,4 +28,8 @@ public class Enemy : EntityLiving
        
     }
 
+    protected override void OnDamage(World world) { }
+    protected override void OnHeal(World world) { }
+    protected override void OnDeath(World world) { world.RemoveEntity(Id); }
+
 }

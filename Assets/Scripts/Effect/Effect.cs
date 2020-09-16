@@ -12,7 +12,7 @@ public class Effect
 
     public enum EventType
     {
-        ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_ACTIVATION
+        ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_ACTIVATION, ON_DEATH
     }
 
     public Effect()
@@ -20,10 +20,10 @@ public class Effect
         actions = new Dictionary<EventType, Action>();
         stats = new Dictionary<Stat, float>();
     }
-    public void OnEvent(EventType eventType, Character character)
+    public void OnEvent(EventType eventType, World world, Character character, Position room, Position positionInRoom)
     {
         if(actions.ContainsKey(eventType))
-            actions[eventType].OnActivation(character);
+            actions[eventType].OnActivation(world, character, room, positionInRoom);
     }
 
     public void ModifyStats(EntityLiving entity)
