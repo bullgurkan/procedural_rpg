@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Room
 {
-    public List<Entity> entities;
+    public List<int> entityIds;
     public enum RoomSide
     {
         CLOSED, DOOR, OPEN
@@ -28,7 +28,7 @@ public class Room
 
     public Room(Position roomPos)
     {
-        entities = new List<Entity>();
+        entityIds = new List<int>();
         roomSides = new RoomSide[4];
         doors = new List<Entity>();
         roomLocks = new List<Position>();
@@ -67,7 +67,7 @@ public class Room
     {
         foreach (Entity door in doors)
         {
-            world.RemoveEntity(door.Id);
+            world.QueueEntityRemoval(door.Id);
         }
     }
 

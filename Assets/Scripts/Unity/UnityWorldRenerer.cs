@@ -94,5 +94,11 @@ class UnityWorldRenerer : WorldRenderer
     {
         return new Vector2(pos.x, pos.y)/ positionUnitsPerUnityUnit;
     }
+
+    public Position FromVector2ToPlayerPosition(Vector2 pos, World world)
+    {
+
+        return new Position((int)(pos.x * positionUnitsPerUnityUnit), (int)(pos.y * positionUnitsPerUnityUnit)) - world.GetMainPlayer.CurrentRoom * world.RoomSize;
+    }
 }
 

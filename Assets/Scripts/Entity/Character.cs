@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using static Effect;
 public class Character : EntityLiving
 {
@@ -24,6 +25,7 @@ public class Character : EntityLiving
         effects = new List<Effect>();
         items = new Dictionary<Slot, Item>();
         this.wallWidth = wallWidth;
+        Tag = TagType.PLAYER;
 
         GenerateBaseStats();
         foreach (var stat in baseStats)
@@ -100,8 +102,7 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            Position roomPosForActivation = CurrentRoom + world.RoomDeltaIfOutsideOfRoom(activationPos);
-            item.OnEvent(EventType.ON_ACTIVATION, world, this, roomPosForActivation, world.ConvertPositionBetweenRooms(activationPos, CurrentRoom, roomPosForActivation));
+            item.OnEvent(EventType.ON_ACTIVATION, world, this, CurrentRoom, activationPos);
         }
     }
 

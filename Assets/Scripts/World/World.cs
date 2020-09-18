@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static Entity;
 
 public class World
 {
     Dictionary<int, Entity> entities;
     List<ITickable> tickables;
     Room[][] rooms;
+    int mainPlayerId;
     public int RoomSize { get; private set; }
     public WorldRenderer WorldRenderer { get; private set; }
     public readonly Position worldSize;
     public List<Character> players;
+    public Character GetMainPlayer { get { return players[mainPlayerId]; } }
+
+    List<int> entitiesToRemove;
 
 
     public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer, List<Character> players)
@@ -21,6 +26,7 @@ public class World
         tickables = new List<ITickable>();
         this.players = players;
         worldSize = new Position(worldSizeX, worldSizeY);
+        entitiesToRemove = new List<int>();
 
         WorldGenerator worldGen = new WorldGenerator(1, 760, 3, "wall", "floor", 10, 5);
         rooms = worldGen.GenerateRoomMap(this);
@@ -35,6 +41,16 @@ public class World
         {
             tickable.Tick(this);
         }
+
+        if(entitiesToRemove.Count > 0)
+        {
+            foreach (var id in entitiesToRemove)
+            {
+                RemoveEntity(id);
+            }
+            entitiesToRemove.Clear();
+        }
+        
     }
 
     public void AddEntity(Entity entity, Position roomPos, Position posInRoom, bool shouldCameraFollow = false)
@@ -54,13 +70,19 @@ public class World
         WorldRenderer.AddEntity(entity, this, shouldCameraFollow);
     }
 
+    public void QueueEntityRemoval(int id) 
+    {
+        if (!entitiesToRemove.Contains(id))
+        entitiesToRemove.Add(id);
+    }
+
     public void RemoveEntity(int id)
     {
         if (entities[id] is ITickable)
             tickables.Remove((ITickable)entities[id]);
 
+        GetRoom(entities[id].CurrentRoom).entityIds.Remove(id);
         entities.Remove(id);
-
         WorldRenderer.RemoveEntity(id);
     }
 
@@ -147,8 +169,9 @@ public class World
 
     public Entity BoxCast(Position roomPosition, Position pos, Position size)
     {
-        foreach (Entity entity in GetRoom(roomPosition).entities)
+        foreach (int id in GetRoom(roomPosition).entityIds)
         {
+            Entity entity = entities[id];
             if (IsColliding(pos, size, entity.PositionInRoom, entity.Size))
                 return entity;
         }
@@ -158,8 +181,9 @@ public class World
             Position room2 = roomPosition + direciton;
             if (GetRoom(room2) != null)
             {
-                foreach (Entity entity in GetRoom(room2).entities)
+                foreach (int id in GetRoom(room2).entityIds)
                 {
+                    Entity entity = entities[id];
                     if (IsColliding(pos, size, ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition), entity.Size))
                         return entity;
                 }
@@ -169,7 +193,7 @@ public class World
         return null;
     }
 
-    public Entity CheckEntityMovement(Entity entityToCast, Position pos)
+    public Entity CheckEntityMovement(Entity entityToCast, Position pos, List<TagType> tagsToIgnore)
     {
 
         Position dir = Position.zero;
@@ -182,10 +206,11 @@ public class World
                 Position room2 = entityToCast.CurrentRoom + dir;
                 if (GetRoom(room2) != null)
                 {
-                    foreach (Entity entity in GetRoom(room2).entities)
+                    foreach (int id in GetRoom(room2).entityIds)
                     {
+                        Entity entity = entities[id];
                         Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, entityToCast.CurrentRoom);
-                        if (entityToCast.Id != entity.Id && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
+                        if (entityToCast.Id != entity.Id && (!tagsToIgnore?.Contains(entity.Tag) ?? true) && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
                             return entity;
 
                     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static WorldRenderer;
 
@@ -21,6 +22,14 @@ public class Entity
 
     public RenderPriority RenderPrio { get; private set; }
 
+
+    public enum TagType
+    {
+        TERRAIN, PLAYER, PROJECTILE
+    }
+    public TagType Tag { get; set; }
+
+
     public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT)
     {
         Size = size;
@@ -31,25 +40,31 @@ public class Entity
         RenderPrio = renderPriority;
     }
 
-    public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
+    public int MoveInLine(Position direction, int distance, World world, bool shouldSlide, List<TagType> tagsToIgnore = null)
     {
         int distanceLeft = distance;
         for (; distanceLeft > 0; distanceLeft--)
         {
-            if (world.CheckEntityMovement(this, PositionInRoom + direction) == null)
+
+            Entity collidingEntity = world.CheckEntityMovement(this, PositionInRoom + direction, tagsToIgnore);
+            if (collidingEntity == null)
                 SetPositionInRoom(PositionInRoom + direction, world, true);
             else
+            {
+                OnCollision(world, collidingEntity);
+                collidingEntity.OnCollision(world, this);
                 break;
-                
+            }
+
 
         }
-        
+
         if (shouldSlide && direction.x != 0 && direction.y != 0)
         {
             distanceLeft -= MoveInLine(new Position(direction.x, 0), distanceLeft, world, false);
             distanceLeft -= MoveInLine(new Position(0, direction.y), distanceLeft, world, false);
         }
-        
+
 
         world.WorldRenderer?.UpdateEntityPosition(this, world);
 
@@ -109,8 +124,8 @@ public class Entity
     {
         if (world.GetRoom(room) != null)
         {
-            world.GetRoom(CurrentRoom)?.entities.Remove(this);
-            world.GetRoom(room).entities.Add(this);
+            world.GetRoom(CurrentRoom)?.entityIds.Remove(Id);
+            world.GetRoom(room).entityIds.Add(Id);
             PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
             CurrentRoom = room;
             OnRoomChange(world);
@@ -128,8 +143,9 @@ public class Entity
         }
     }
 
-    public virtual void OnRoomChange(World world) {}
-    public virtual void OnPositionChange(World world) {}
+    public virtual void OnRoomChange(World world) { }
+    public virtual void OnPositionChange(World world) { }
+    public virtual void OnCollision(World world, Entity collidingEntiy) { }
 
 
 }

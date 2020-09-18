@@ -16,6 +16,7 @@ class UnityGameContainer : MonoBehaviour
     Vector2 mousePos;
     Character e;
     World world;
+    UnityWorldRenerer worldRenerer;
     private void Start()
     {
         Dictionary<string, Sprite> spriteReg = new Dictionary<string, Sprite>();
@@ -24,7 +25,7 @@ class UnityGameContainer : MonoBehaviour
             spriteReg.Add(spriteIds[i], sprites[i]);
         }
         //spriteReg.Add("default", sprites[0]);
-        UnityWorldRenerer worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 1000);
+        worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 1000);
 
         e = new Character(Position.one * 400, 760, name: "Player");
 
@@ -34,7 +35,7 @@ class UnityGameContainer : MonoBehaviour
         world = new World(10, 10, 7600, worldRenerer, players);
 
         Item item = new Item();
-        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 10));
+        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 10, false));
 
 
         e.ChangeEquipment(item);
@@ -61,7 +62,8 @@ class UnityGameContainer : MonoBehaviour
 
         if (activated)
         {
-            e.Activate(world, new Position((int)mousePos.x, (int)mousePos.y));
+            
+            e.Activate(world, worldRenerer.FromVector2ToPlayerPosition(Camera.main.ScreenToWorldPoint(mousePos), world));
             activated = false;
         }
            
