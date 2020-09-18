@@ -35,7 +35,7 @@ class UnityGameContainer : MonoBehaviour
         world = new World(10, 10, 7600, worldRenerer, players);
 
         Item item = new Item();
-        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 10, false));
+        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 10, new DamageAction(10, EntityLiving.Stat.ARMOR)));
 
 
         e.ChangeEquipment(item);

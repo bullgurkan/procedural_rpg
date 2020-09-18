@@ -28,7 +28,7 @@ public class World
         worldSize = new Position(worldSizeX, worldSizeY);
         entitiesToRemove = new List<int>();
 
-        WorldGenerator worldGen = new WorldGenerator(1, 760, 3, "wall", "floor", 10, 5);
+        WorldGenerator worldGen = new WorldGenerator(1, 760, 3, "wall", "floor", 50, 5);
         rooms = worldGen.GenerateRoomMap(this);
         worldGen.GenerateRoomWalls(this);
         worldGen.GenerateRoomContents(this);

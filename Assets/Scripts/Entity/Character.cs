@@ -5,9 +5,6 @@ using static Effect;
 public class Character : EntityLiving
 {
     Dictionary<Slot, Item> items;
-    List<Effect> effects;
-
-    Dictionary<Stat, int> baseStats;
 
     private bool triggeredRoomEnter;
     private int wallWidth;
@@ -21,22 +18,15 @@ public class Character : EntityLiving
 
     public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name)
     {
-        stats = new Dictionary<Stat, int>();
-        effects = new List<Effect>();
         items = new Dictionary<Slot, Item>();
         this.wallWidth = wallWidth;
         Tag = TagType.PLAYER;
 
-        GenerateBaseStats();
-        foreach (var stat in baseStats)
-        {
-            stats.Add(stat.Key, stat.Value);
-        }
+        
     }
-
-    private void GenerateBaseStats()
+    public override Dictionary<Stat, int> GenerateBaseStats()
     {
-        baseStats = new Dictionary<Stat, int>();
+        Dictionary<Stat, int> baseStats = new Dictionary<Stat, int>();
 
         foreach (Stat stat in Enum.GetValues(typeof(Stat)))
         {
@@ -44,34 +34,26 @@ public class Character : EntityLiving
         }
         baseStats[Stat.ATTACK_POWER] = 10;
 
+        return baseStats;
     }
+
     public void ChangeEquipment(Item item)
     {
         items[item.Slot] = item;
         RecalculateStats();
     }
 
-    public void RecalculateStats()
+    public override void RecalculateStats()
     {
-        
-        foreach (var stat in baseStats.Keys)
-        {
-            stats[stat] = baseStats[stat];
-        }
-        
+
+        base.RecalculateStats();
+
         foreach (var item in items)
         {
-            
+
             item.Value.ModifyStats(this);
         }
-
-        foreach (var effect in effects)
-        {
-            effect.ModifyStats(this);
-        }
-
     }
-
     public override void OnRoomChange(World world)
     {
         triggeredRoomEnter = false;
@@ -80,6 +62,7 @@ public class Character : EntityLiving
     {
         if (!triggeredRoomEnter && PositionInRoom.x < world.RoomSize / 2 - (Size.x + wallWidth) && PositionInRoom.x > (Size.x + wallWidth) - world.RoomSize / 2 && PositionInRoom.y < world.RoomSize / 2 - (Size.y + wallWidth) && PositionInRoom.y > (Size.y + wallWidth) - world.RoomSize / 2)
         {
+            //UnityEngine.Debug.Log(world.GetRoom(CurrentRoom).roomLogic);
             world.GetRoom(CurrentRoom).OnRoomEnter(world, this);
             triggeredRoomEnter = true;
         }
@@ -107,9 +90,9 @@ public class Character : EntityLiving
     }
 
     protected override void OnDamage(World world)
-    { TriggerItemEvents(EventType.ON_DAMAGE, world);}
+    { base.OnDamage(world);  TriggerItemEvents(EventType.ON_DAMAGE, world);}
     protected override void OnHeal(World world)
-    { TriggerItemEvents(EventType.ON_HEAL, world);}
+    { base.OnHeal(world); TriggerItemEvents(EventType.ON_HEAL, world);}
     protected override void OnDeath(World world)
-    { TriggerItemEvents(EventType.ON_DEATH, world); }
+    { base.OnDeath(world); TriggerItemEvents(EventType.ON_DEATH, world); }
 }

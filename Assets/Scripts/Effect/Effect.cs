@@ -20,10 +20,10 @@ public class Effect
         actions = new Dictionary<EventType, Action>();
         stats = new Dictionary<Stat, float>();
     }
-    public void OnEvent(EventType eventType, World world, Character character, Position room, Position positionInRoom)
+    public void OnEvent(EventType eventType, World world, EntityLiving entityLiving, Position room, Position positionInRoom)
     {
         if(actions.ContainsKey(eventType))
-            actions[eventType].OnActivation(world, character, room, positionInRoom);
+            actions[eventType].OnActivation(world, entityLiving, room, positionInRoom);
     }
 
     public void ModifyStats(EntityLiving entity)

@@ -8,26 +8,25 @@ using System.Threading.Tasks;
 public class Projectile : Entity, ITickable
 {
     Position direction;
-    int shooterId;
-    bool canDamageShooter;
-    List<TagType> tagsToIgnore;
-    public Projectile(Position size, Position directionAndSpeed, Entity shooter, bool canDamageShooter, Position? renderSize = null, string spriteId = null, string name = null) : base(size, renderSize, spriteId, name)
+    Action actionToUseOnHit;
+
+    public Projectile(Position size, Position directionAndSpeed, Action actionToUseOnHit, Position? renderSize = null, string spriteId = null, string name = null) : base(size, renderSize, spriteId, name)
     {
         direction = directionAndSpeed;
-        shooterId = shooter.Id;
-        this.canDamageShooter = canDamageShooter;
-        tagsToIgnore = new List<TagType>();
-        if (!canDamageShooter)
-            tagsToIgnore.Add(shooter.Tag);
+        this.actionToUseOnHit = actionToUseOnHit;
+
     }
 
     public void Tick(World world)
     {
-        MoveInLine(direction, 2, world, false, tagsToIgnore);
+        MoveInLine(direction, 2, world, false);
     }
 
     public override void OnCollision(World world, Entity collidingEntiy)
     {
+        if (collidingEntiy is EntityLiving)
+            actionToUseOnHit.OnActivation(world, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom);
+
         world.QueueEntityRemoval(Id);
     }
 }

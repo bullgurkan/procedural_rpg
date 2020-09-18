@@ -9,18 +9,18 @@ public class SpawnProjectileAction : Action
 {
     Position size;
     int speed;
-    bool canDamageSelf;
-    public SpawnProjectileAction(Position size, int speed, bool canDamageSelf)
+    Action actionToUseOnProjectileHit;
+    public SpawnProjectileAction(Position size, int speed, Action actionToUseOnProjectileHit)
     {
         this.size = size;
         this.speed = speed;
-        this.canDamageSelf = canDamageSelf;
+        this.actionToUseOnProjectileHit = actionToUseOnProjectileHit;
     }
-    public override void OnActivation(World world, Character character, Position room, Position positionInRoom)
+    public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom)
     {
-        Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, character.CurrentRoom) - character.PositionInRoom;
+        Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, entityLiving.CurrentRoom) - entityLiving.PositionInRoom;
         
-        world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, character, canDamageSelf), character.CurrentRoom, character.PositionInRoom + delta * character.Size.x / delta.Magnitude);
+        world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit), entityLiving.CurrentRoom, entityLiving.PositionInRoom + delta * entityLiving.Size.x / delta.Magnitude);
     }
 }
 

@@ -1,13 +1,11 @@
 ﻿
 
 
-public class Enemy : EntityLiving
+public abstract class Enemy : EntityLiving
 {
-    EnemyType type;
     int timeToSpawn;
-    public Enemy(EnemyType enemyType, Position pos, int spawnTime) : base(Position.zero, enemyType.spriteId, enemyType.name, enemyType.size)
+    public Enemy(Position pos, int spawnTime, string spriteId, string name, Position size) : base(Position.zero, spriteId, name, size)
     {
-        type = enemyType;
         timeToSpawn = spawnTime;
         PositionInRoom = pos;
     }
@@ -15,7 +13,7 @@ public class Enemy : EntityLiving
     {
         if(timeToSpawn < 0)
         {
-            type.Tick(world, this);
+            EnemyTick(world);
         }
         else
         {
@@ -28,8 +26,8 @@ public class Enemy : EntityLiving
        
     }
 
-    protected override void OnDamage(World world) { }
-    protected override void OnHeal(World world) { }
-    protected override void OnDeath(World world) { world.QueueEntityRemoval(Id); }
+    public abstract void EnemyTick(World world);
+
+    protected override void OnDeath(World world) { base.OnDeath(world); world.QueueEntityRemoval(Id); }
 
 }

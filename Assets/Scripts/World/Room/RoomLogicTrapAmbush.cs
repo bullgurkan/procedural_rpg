@@ -3,16 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using static Effect;
 
 public class RoomLogicTrapAmbush : RoomLogic
 {
     bool triggered = false;
-    List<EntityLiving> enemies;
+    List<Enemy> enemies;
+    Room room;
     
 
     public RoomLogicTrapAmbush()
     {
-        enemies = new List<EntityLiving>();
+        enemies = new List<Enemy>();
     }
 
     public override RoomLogic CreateNew()
@@ -23,10 +25,14 @@ public class RoomLogicTrapAmbush : RoomLogic
     {
         if (!triggered)
         {
+            this.room = room;
             room.AddRoomLockToMultRoom(world, room.RoomPosition);
 
-            foreach(EntityLiving enemy in enemies)
+            foreach(Enemy enemy in enemies)
             {
+                Effect effect = new Effect();
+                effect.actions.Add(EventType.ON_DEATH, new UnlockRoomAction(this));
+                enemy.AddEffect(effect);
                 world.AddEntity(enemy, room.RoomPosition, enemy.PositionInRoom);
             }
             
@@ -37,8 +43,16 @@ public class RoomLogicTrapAmbush : RoomLogic
 
     protected override void OnGeneration(World world, Room room, int difficulty)
     {
-        enemies.Add(new Enemy(new EnemyTypeCharger(Position.one * 400, "Wall", "Charger"), Position.zero, 60));
+        enemies.Add(new EnemyCharger(Position.zero));
     }
+
+    public void EntityDied(World world, Enemy enemy)
+    {
+        enemies.Remove(enemy);
+        if (enemies.Count == 0)
+            room.RemoveRoomLockFromMultRoom(world, room.RoomPosition);
+    }
+
 }
     
 

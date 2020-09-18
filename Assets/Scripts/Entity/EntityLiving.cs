@@ -3,17 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using static Effect;
 
 public abstract class EntityLiving : Entity, ITickable
 {
     protected Dictionary<Stat, int> stats;
+    Dictionary<Stat, int> baseStats;
     protected int health;
+    List<Effect> effects;
 
     public EntityLiving(Position size, string spriteId, string name, Position? renderSize = null) : base(size, renderSize, spriteId, name)
     {
+        stats = new Dictionary<Stat, int>();
+        effects = new List<Effect>();
+        baseStats = GenerateBaseStats();
 
+        foreach (var stat in baseStats)
+        {
+            stats.Add(stat.Key, stat.Value);
+        }
+
+        health = stats[Stat.MAX_HEALTH];
     }
+    public abstract Dictionary<Stat, int> GenerateBaseStats();
     public abstract void Tick(World world);
 
     public void Damage(int amount, Stat? resitanceStat, World world)
@@ -33,6 +45,26 @@ public abstract class EntityLiving : Entity, ITickable
         }
     }
 
+    public void AddEffect(Effect effectToPutOnHit)
+    {
+        effects.Add(effectToPutOnHit);
+    }
+
+    public virtual void RecalculateStats()
+    {
+
+        foreach (var stat in baseStats.Keys)
+        {
+            stats[stat] = baseStats[stat];
+        }
+
+        foreach (var effect in effects)
+        {
+            effect.ModifyStats(this);
+        }
+
+    }
+
     public void Heal(int amount, World world)
     {
         if (amount < 0)
@@ -44,9 +76,20 @@ public abstract class EntityLiving : Entity, ITickable
         OnHeal(world);
     }
 
-    protected abstract void OnDamage(World world);
-    protected abstract void OnHeal(World world);
-    protected abstract void OnDeath(World world);
+    private void TriggerEffectEvents(EventType e, World world)
+    {
+        foreach (Effect effect in effects)
+        {
+            effect.OnEvent(e, world, this, CurrentRoom, PositionInRoom);
+        }
+    }
+
+    protected virtual void OnDamage(World world)
+    { TriggerEffectEvents(EventType.ON_DAMAGE, world); }
+    protected virtual void OnHeal(World world)
+    { TriggerEffectEvents(EventType.ON_HEAL, world); }
+    protected virtual void OnDeath(World world)
+    { TriggerEffectEvents(EventType.ON_DEATH, world); }
 
     public enum Stat
     {
