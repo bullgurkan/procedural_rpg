@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using static WorldRenderer;
 
 public class Entity
@@ -30,8 +29,10 @@ public class Entity
     }
     public TagType Tag { get; private  set; }
 
+    public bool IsTrigger { get; private set; }
 
-    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT, TagType tag = TagType.TERRAIN, List<TagType> tagsToIgnore = null)
+
+    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT, TagType tag = TagType.TERRAIN, List<TagType> tagsToIgnore = null, bool isTrigger = false)
     {
         Size = size;
         SpriteId = spriteId;
@@ -41,7 +42,7 @@ public class Entity
         RenderPrio = renderPriority;
         Tag = tag;
         TagsToIgnoreCollision = tagsToIgnore ?? new List<TagType>();
-
+        IsTrigger = isTrigger;
     }
 
     public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
@@ -51,19 +52,27 @@ public class Entity
         {
 
             Entity collidingEntity = world.CheckEntityMovement(this, PositionInRoom + direction);
-            if (collidingEntity == null)
-                SetPositionInRoom(PositionInRoom + direction, world, true);
-            else
+
+
+            if (collidingEntity == null || collidingEntity.IsTrigger)
             {
-                OnCollision(world, collidingEntity);
-                collidingEntity.OnCollision(world, this);
-                break;
+                SetPositionInRoom(PositionInRoom + direction, world, true);
             }
+                
+            if (collidingEntity != null)
+            {
+               
+                OnCollision(world, collidingEntity, true);
+                collidingEntity.OnCollision(world, this, false);
+                if(!collidingEntity.IsTrigger)
+                    break;
+            }
+               
 
 
         }
 
-        if (shouldSlide && direction.x != 0 && direction.y != 0)
+        if (shouldSlide && direction.x != 0 && direction.y != 0 && distanceLeft > 0)
         {
             distanceLeft -= MoveInLine(new Position(direction.x, 0), distanceLeft, world, false);
             distanceLeft -= MoveInLine(new Position(0, direction.y), distanceLeft, world, false);
@@ -158,7 +167,7 @@ public class Entity
 
     public virtual void OnRoomChange(World world) { }
     public virtual void OnPositionChange(World world) { }
-    public virtual void OnCollision(World world, Entity collidingEntiy) { }
+    public virtual void OnCollision(World world, Entity collidingEntiy, bool isTheMovingEntity) { }
 
 
 }

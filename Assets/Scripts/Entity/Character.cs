@@ -32,6 +32,7 @@ public class Character : EntityLiving
             baseStats.Add(stat, 1);
         }
         baseStats[Stat.ATTACK_POWER] = 10;
+        baseStats[Stat.MAX_HEALTH] = 20;
 
         return baseStats;
     }
@@ -93,5 +94,7 @@ public class Character : EntityLiving
     protected override void OnHeal(World world)
     { base.OnHeal(world); TriggerItemEvents(EventType.ON_HEAL, world);}
     protected override void OnDeath(World world)
-    { base.OnDeath(world); TriggerItemEvents(EventType.ON_DEATH, world); }
+    { base.OnDeath(world);
+        UnityEngine.Debug.Log("Dead");
+        TriggerItemEvents(EventType.ON_DEATH, world); }
 }

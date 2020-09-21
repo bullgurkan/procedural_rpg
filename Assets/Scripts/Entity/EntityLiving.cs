@@ -45,9 +45,9 @@ public abstract class EntityLiving : Entity, ITickable
         }
     }
 
-    public void AddEffect(Effect effectToPutOnHit)
+    public void AddEffect(Effect effect)
     {
-        effects.Add(effectToPutOnHit);
+        effects.Add(effect);
     }
 
     public virtual void RecalculateStats()
