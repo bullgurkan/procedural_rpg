@@ -38,12 +38,14 @@ public class Room
     public void AddDoor(Entity door, Position pos)
     {
         door.SetPositionInRoom(pos, null, true);
+        door.SetCurrentRoom(RoomPosition, null);
         doors.Add(door);
     }
     private void AddRoomLock(World world, Position roomThatLocked)
     {
         roomLocks.Add(roomThatLocked);
-        if(roomLocks.Count == 1)
+
+        if (roomLocks.Count == 1)
             Lock(world);
     }
 
@@ -57,9 +59,10 @@ public class Room
 
     private void Lock(World world)
     {
+        
         foreach (Entity door in doors)
         {
-            world.AddEntity(door, RoomPosition, door.PositionInRoom);
+            world.AddEntity(door, door.CurrentRoom, door.PositionInRoom);
         }
     }
 

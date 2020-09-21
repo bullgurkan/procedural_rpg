@@ -51,9 +51,10 @@ class UnityWorldRenerer : WorldRenderer
         }
         else
         {
+            currentlyUsedObjects[entity.Id].size = Vector2.one;
             currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.RenderSize);
         }
-        
+
 
         if (shouldCameraFollow)
         {

@@ -23,6 +23,7 @@ public class RoomLogicTrapAmbush : RoomLogic
     }
     public override void OnRoomEnter(World world, Room room, Character player)
     {
+        
         if (!triggered)
         {
             this.room = room;

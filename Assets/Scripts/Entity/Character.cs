@@ -16,11 +16,10 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name)
+    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name, tag:TagType.PLAYER)
     {
         items = new Dictionary<Slot, Item>();
         this.wallWidth = wallWidth;
-        Tag = TagType.PLAYER;
 
         
     }

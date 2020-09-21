@@ -14,23 +14,24 @@ public class Entity
     public Position RenderSize { get; private set; }
     public Position TileSize { get; private set; }
 
-    private int id = -1;
-    public int Id { get { return id; } set { if (id == -1) id = value; } }
+    public int Id { get; set; }
     public string SpriteId { get; private set; }
 
     public string Name { get; private set; }
 
     public RenderPriority RenderPrio { get; private set; }
 
+    public List<TagType> TagsToIgnoreCollision { get; private set; }
+
 
     public enum TagType
     {
-        TERRAIN, PLAYER, PROJECTILE
+        TERRAIN, PLAYER, PROJECTILE_PASSABLE, PROJECTILE_SOLID, ENEMY
     }
-    public TagType Tag { get; set; }
+    public TagType Tag { get; private  set; }
 
 
-    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT)
+    public Entity(Position size, Position? renderSize = null, string spriteId = null, string name = null, Position? tileSize = null, RenderPriority renderPriority = RenderPriority.DEFAULT, TagType tag = TagType.TERRAIN, List<TagType> tagsToIgnore = null)
     {
         Size = size;
         SpriteId = spriteId;
@@ -38,15 +39,18 @@ public class Entity
         Name = name;
         TileSize = tileSize ?? Position.zero;
         RenderPrio = renderPriority;
+        Tag = tag;
+        TagsToIgnoreCollision = tagsToIgnore ?? new List<TagType>();
+
     }
 
-    public int MoveInLine(Position direction, int distance, World world, bool shouldSlide, List<TagType> tagsToIgnore = null)
+    public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
         int distanceLeft = distance;
         for (; distanceLeft > 0; distanceLeft--)
         {
 
-            Entity collidingEntity = world.CheckEntityMovement(this, PositionInRoom + direction, tagsToIgnore);
+            Entity collidingEntity = world.CheckEntityMovement(this, PositionInRoom + direction);
             if (collidingEntity == null)
                 SetPositionInRoom(PositionInRoom + direction, world, true);
             else
@@ -122,14 +126,23 @@ public class Entity
 
     public void SetCurrentRoom(Position room, World world)
     {
-        if (world.GetRoom(room) != null)
+        if(world != null)
         {
-            world.GetRoom(CurrentRoom)?.entityIds.Remove(Id);
-            world.GetRoom(room).entityIds.Add(Id);
-            PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
-            CurrentRoom = room;
-            OnRoomChange(world);
+            if (world.GetRoom(room) != null)
+            {
+                world.GetRoom(CurrentRoom)?.entityIds.Remove(Id);
+                world.GetRoom(room).entityIds.Add(Id);
+                PositionInRoom = world.ConvertPositionBetweenRooms(PositionInRoom, CurrentRoom, room);
+                CurrentRoom = room;
+                OnRoomChange(world);
+            }
         }
+        else
+        {
+            CurrentRoom = room;
+        }
+       
+        
 
     }
 

@@ -56,6 +56,7 @@ public class World
     public void AddEntity(Entity entity, Position roomPos, Position posInRoom, bool shouldCameraFollow = false)
     {
         entity.Id = GenerateId();
+        
         entities.Add(entity.Id, entity);
         if (entity is ITickable)
             tickables.Add((ITickable)entity);
@@ -94,6 +95,7 @@ public class World
         int i = 0;
         while (entities.ContainsKey(i))
             i++;
+
         return i;
     }
     /*
@@ -193,7 +195,7 @@ public class World
         return null;
     }
 
-    public Entity CheckEntityMovement(Entity entityToCast, Position pos, List<TagType> tagsToIgnore)
+    public Entity CheckEntityMovement(Entity entityToCast, Position pos)
     {
 
         Position dir = Position.zero;
@@ -210,7 +212,7 @@ public class World
                     {
                         Entity entity = entities[id];
                         Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, entityToCast.CurrentRoom);
-                        if (entityToCast.Id != entity.Id && (!tagsToIgnore?.Contains(entity.Tag) ?? true) && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
+                        if (entityToCast.Id != entity.Id && !entityToCast.TagsToIgnoreCollision.Contains(entity.Tag) && !entity.TagsToIgnoreCollision.Contains(entityToCast.Tag) && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
                             return entity;
 
                     }

@@ -12,7 +12,7 @@ public abstract class EntityLiving : Entity, ITickable
     protected int health;
     List<Effect> effects;
 
-    public EntityLiving(Position size, string spriteId, string name, Position? renderSize = null) : base(size, renderSize, spriteId, name)
+    public EntityLiving(Position size, string spriteId, string name, Position? renderSize = null, TagType tag = TagType.ENEMY) : base(size, renderSize, spriteId, name, tag: tag)
     {
         stats = new Dictionary<Stat, int>();
         effects = new List<Effect>();

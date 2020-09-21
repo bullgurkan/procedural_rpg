@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using TMPro;
+using static Entity;
 
 public class SpawnProjectileAction : Action
 {
@@ -19,8 +20,9 @@ public class SpawnProjectileAction : Action
     public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom)
     {
         Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, entityLiving.CurrentRoom) - entityLiving.PositionInRoom;
-        
-        world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit), entityLiving.CurrentRoom, entityLiving.PositionInRoom + delta * entityLiving.Size.x / delta.Magnitude);
+
+        List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE};
+        world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, tagsToIgnore:tagsToIgnore), entityLiving.CurrentRoom, entityLiving.PositionInRoom + delta * entityLiving.Size.x / delta.Magnitude);
     }
 }
 
