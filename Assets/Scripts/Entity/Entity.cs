@@ -47,6 +47,7 @@ public class Entity
 
     public int MoveInLine(Position direction, int distance, World world, bool shouldSlide)
     {
+        bool hasCollided = false;
         int distanceLeft = distance;
         for (; distanceLeft > 0; distanceLeft--)
         {
@@ -61,11 +62,16 @@ public class Entity
                 
             if (collidingEntity != null)
             {
-               
-                OnCollision(world, collidingEntity, true);
-                collidingEntity.OnCollision(world, this, false);
-                if(!collidingEntity.IsTrigger)
-                    break;
+                if (!hasCollided)
+                {
+                    OnCollision(world, collidingEntity, true);
+                    collidingEntity.OnCollision(world, this, false);
+                    hasCollided = true;
+
+                    if (!collidingEntity.IsTrigger)
+                        break;
+                }
+                   
             }
                
 

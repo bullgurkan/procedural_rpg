@@ -22,6 +22,8 @@ public class WorldGenerator
 
     private readonly int wallWidth, doorWidth;
     private readonly Position tileSize;
+    private EnemyGenerator enemyGen;
+    private int precentOfRoomWithLogic;
 
     public WorldGenerator(int seed, int wallWidth, int doorWithInTiles, string wallSprite, string floorSprite, int precentOfRoomWithLogic, int startingDifficulty)
     {
@@ -34,24 +36,13 @@ public class WorldGenerator
         difficulty = startingDifficulty;
         roomLogicRegistry = new List<RoomLogic>();
         roomsWithLogicToGenerate = new List<RoomLogic>();
+        enemyGen = new EnemyGenerator();
+        this.precentOfRoomWithLogic = precentOfRoomWithLogic;
 
-        amountOfRoomsToGenerate = random.Next(10, 20 + difficulty);
+
+
 
         roomLogicRegistry.Add(new RoomLogicTrapAmbush());
-
-
-
-        roomsWithLogicToGenerate.Add(new StartRoomLogic());
-        roomsWithLogicToGenerate.Add(new ExitRoomLogic());
-
-        if (roomLogicRegistry.Count > 0)
-        {
-            for (int i = 0; i < (amountOfRoomsToGenerate * precentOfRoomWithLogic)/100; i++)
-            {
-                roomsWithLogicToGenerate.Add(roomLogicRegistry[random.Next(roomLogicRegistry.Count)].CreateNew());
-
-            }
-        }
 
 
     }
@@ -59,6 +50,20 @@ public class WorldGenerator
 
     public Room[][] GenerateRoomMap(World world)
     {
+        difficulty += difficulty / 4;
+        roomsWithLogicToGenerate.Clear();
+        roomsWithLogicToGenerate.Add(new StartRoomLogic());
+        roomsWithLogicToGenerate.Add(new ExitRoomLogic());
+
+        amountOfRoomsToGenerate = random.Next(10, 20 + difficulty);
+        if (roomLogicRegistry.Count > 0)
+        {
+            for (int i = 0; i < (amountOfRoomsToGenerate * precentOfRoomWithLogic) / 100; i++)
+            {
+                roomsWithLogicToGenerate.Add(roomLogicRegistry[random.Next(roomLogicRegistry.Count)].CreateNew());
+
+            }
+        }
 
         Room[][] roomMap = new Room[world.worldSize.x][];
         for (int x = 0; x < world.worldSize.x; x++)
@@ -155,10 +160,12 @@ public class WorldGenerator
             {
                 Room room = world.GetRoom(new Position(x, y));
                 if (room != null)
+                {
+                    //floor
+                    world.AddEntity(new Entity(Position.zero, Position.one * world.RoomSize, floorSprite, $"RoomFloor {room.RoomPosition}", tileSize, floorRenderPrio), room.RoomPosition, Position.zero);
                     for (int i = 0; i < Position.directions.Length; i++)
                     {
-                        //floor
-                        world.AddEntity(new Entity(Position.zero, Position.one * world.RoomSize, floorSprite, $"RoomFloor {room.RoomPosition}", tileSize, floorRenderPrio), room.RoomPosition, Position.zero);
+
 
                         Position cornerDir = Position.directions[i] + Position.RightNormal(Position.directions[i]);
                         Room neighbourRoom = world.GetRoom(room.RoomPosition + cornerDir);
@@ -204,6 +211,8 @@ public class WorldGenerator
 
 
                     }
+                }
+
             }
 
     }
@@ -229,7 +238,7 @@ public class WorldGenerator
         foreach (RoomLogic room in roomsWithLogicToGenerate)
         {
             if (emptyRooms.Count > 0)
-                room.Generate(world, random, emptyRooms, difficulty);
+                room.Generate(world, random, emptyRooms, enemyGen, difficulty);
         }
 
     }

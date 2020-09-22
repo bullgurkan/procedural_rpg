@@ -9,17 +9,16 @@ public class EnemyCharger : Enemy
 {
     Position charagingDir;
     bool isCharging = false;
-    int speed;
-    int accuracy = 10;
+    static int accuracy = 10;
     int chargeCooldownMax;
     int chargeCooldownleft;
 
-    Action actionOnHit;
-    public EnemyCharger(Position pos, int speed, int chargeCooldown) : base(pos, 10, "", "Charger", new Position(400, 400))
+    DamageAction actionOnHit;
+    public EnemyCharger(Position pos, int spawnTime, int difficulty) : base(pos, spawnTime, "", "Charger", new Position(400, 400), GenerateBaseStats(difficulty))
     {
-        this.speed = speed / accuracy;
-        actionOnHit = new DamageAction(10, Stat.ARMOR);
-        this.chargeCooldownMax = chargeCooldown;
+        actionOnHit = new DamageAction(GetStat(Stat.ATTACK_POWER), Stat.ARMOR);
+
+        chargeCooldownMax = (int)(50/Math.Sqrt(difficulty));
 
     }
     public override void EnemyTick(World world)
@@ -27,9 +26,9 @@ public class EnemyCharger : Enemy
         if (isCharging)
         {
 
-            if (MoveInLine(charagingDir, speed, world, false) < speed)
+            if (MoveInLine(charagingDir, GetStat(Stat.MOVEMENT_SPEED), world, false) < GetStat(Stat.MOVEMENT_SPEED))
             {
-                
+
                 chargeCooldownleft = chargeCooldownMax;
                 isCharging = false;
             }
@@ -37,8 +36,8 @@ public class EnemyCharger : Enemy
         else
         {
 
-        
-            if(chargeCooldownleft <= 0)
+
+            if (chargeCooldownleft <= 0)
             {
                 isCharging = true;
                 double minMag = int.MaxValue;
@@ -57,21 +56,21 @@ public class EnemyCharger : Enemy
             {
                 chargeCooldownleft--;
             }
-            
+
         }
-        
+
     }
 
     public override void OnCollision(World world, Entity collidingEntiy, bool isTheMovingEntity)
     {
-        if (collidingEntiy is EntityLiving && isTheMovingEntity)
+        if (collidingEntiy is Character && isTheMovingEntity)
         {
-            actionOnHit.OnActivation(world, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom);
+            actionOnHit.OnActivation(world, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null);
         }
-            
+
     }
 
-    public override Dictionary<Stat, int> GenerateBaseStats()
+    public static Dictionary<Stat, int> GenerateBaseStats(int difficulty)
     {
         Dictionary<Stat, int> baseStats = new Dictionary<Stat, int>();
 
@@ -79,10 +78,16 @@ public class EnemyCharger : Enemy
         {
             baseStats.Add(stat, 1);
         }
-        baseStats[Stat.MAX_HEALTH] = 100;
-        baseStats[Stat.ATTACK_POWER] = 10;
+        baseStats[Stat.MAX_HEALTH] = difficulty * difficulty;
+        baseStats[Stat.ATTACK_POWER] = 2 * difficulty;
+        baseStats[Stat.MOVEMENT_SPEED] = (int)(40 * Math.Sqrt(difficulty) / accuracy);
 
         return baseStats;
+    }
+
+    protected override void OnStatChange()
+    {
+        actionOnHit.amount = GetStat(Stat.ATTACK_POWER);
     }
 }
 

@@ -10,13 +10,13 @@ public abstract class RoomLogic
 {
     public abstract void OnRoomEnter(World world, Room room, Character player);
 
-    public void Generate(World world, Random rand, List<Room> emptyRooms, int difficulty)
+    public void Generate(World world, Random rand, List<Room> emptyRooms, EnemyGenerator enemyGen, int difficulty)
     {
         Room room = PickRoomPosition(world, rand, emptyRooms);
-        OnGeneration(world, room, difficulty);
+        OnGeneration(world, room, enemyGen, difficulty);
         room.roomLogic = this;
     }
-    protected abstract void OnGeneration(World world, Room roomToGenerate, int difficulty);
+    protected abstract void OnGeneration(World world, Room roomToGenerate, EnemyGenerator enemyGen, int difficulty);
     protected virtual Room PickRoomPosition(World world, Random rand, List<Room> emptyRooms)
     {
         int index = rand.Next(emptyRooms.Count);

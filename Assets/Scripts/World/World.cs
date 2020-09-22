@@ -15,10 +15,11 @@ public class World
     public List<Character> players;
     public Character GetMainPlayer { get { return players[mainPlayerId]; } }
 
+    WorldGenerator worldGen;
     List<int> entitiesToRemove;
 
 
-    public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer, List<Character> players)
+    public World(int worldSizeX, int worldSizeY, int roomSize, WorldRenderer worldRenderer, List<Character> players, WorldGenerator worldGen)
     {
         RoomSize = roomSize;
         WorldRenderer = worldRenderer;
@@ -27,12 +28,18 @@ public class World
         this.players = players;
         worldSize = new Position(worldSizeX, worldSizeY);
         entitiesToRemove = new List<int>();
+        this.worldGen = worldGen;
+        GenerateWorld();
 
-        WorldGenerator worldGen = new WorldGenerator(1, 760, 3, "wall", "floor", 50, 5);
+    }
+
+    public void GenerateWorld()
+    {
+        tickables.Clear();
+        WorldRenderer.ClearWorld();
         rooms = worldGen.GenerateRoomMap(this);
         worldGen.GenerateRoomWalls(this);
         worldGen.GenerateRoomContents(this);
-
     }
 
     public void Tick()
@@ -212,7 +219,9 @@ public class World
                     {
                         Entity entity = entities[id];
                         Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, entityToCast.CurrentRoom);
-                        if (entityToCast.Id != entity.Id && !entityToCast.TagsToIgnoreCollision.Contains(entity.Tag) && !entity.TagsToIgnoreCollision.Contains(entityToCast.Tag) && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
+                        if (entityToCast.Id != entity.Id && !entityToCast.TagsToIgnoreCollision.Contains(entity.Tag) && !entity.TagsToIgnoreCollision.Contains(entityToCast.Tag)
+                            && !entitiesToRemove.Contains(entityToCast.Id) && !entitiesToRemove.Contains(entity.Id)
+                            && IsColliding(pos, entityToCast.Size, convertedEntityPos, entity.Size))
                             return entity;
 
                     }

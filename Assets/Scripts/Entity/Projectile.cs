@@ -25,7 +25,7 @@ public class Projectile : Entity, ITickable
     public override void OnCollision(World world, Entity collidingEntiy, bool isTheMovingEntity)
     {
         if (collidingEntiy is EntityLiving)
-            actionToUseOnHit.OnActivation(world, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom);
+            actionToUseOnHit.OnActivation(world, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null);
 
         world.QueueEntityRemoval(Id);
     }

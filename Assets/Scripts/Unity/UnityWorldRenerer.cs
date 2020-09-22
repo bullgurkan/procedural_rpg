@@ -101,5 +101,14 @@ class UnityWorldRenerer : WorldRenderer
 
         return new Position((int)(pos.x * positionUnitsPerUnityUnit), (int)(pos.y * positionUnitsPerUnityUnit)) - world.GetMainPlayer.CurrentRoom * world.RoomSize;
     }
+
+    public override void ClearWorld()
+    {
+        List<int> allObjects = new List<int>(currentlyUsedObjects.Keys);
+        foreach (var i in allObjects)
+        {
+            RemoveEntity(i);
+        }
+    }
 }
 

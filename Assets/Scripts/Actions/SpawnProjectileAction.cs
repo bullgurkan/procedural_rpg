@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
+using static Effect;
 using static Entity;
 
 public class SpawnProjectileAction : Action
@@ -17,7 +18,7 @@ public class SpawnProjectileAction : Action
         this.speed = speed;
         this.actionToUseOnProjectileHit = actionToUseOnProjectileHit;
     }
-    public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom)
+    public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
     {
         Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, entityLiving.CurrentRoom) - entityLiving.PositionInRoom;
 

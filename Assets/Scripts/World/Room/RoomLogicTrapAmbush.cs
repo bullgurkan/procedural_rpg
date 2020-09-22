@@ -29,6 +29,8 @@ public class RoomLogicTrapAmbush : RoomLogic
             this.room = room;
             room.AddRoomLockToMultRoom(world, room.RoomPosition);
 
+            
+
             foreach(Enemy enemy in enemies)
             {
                 Effect effect = new Effect();
@@ -42,9 +44,9 @@ public class RoomLogicTrapAmbush : RoomLogic
             
     }
 
-    protected override void OnGeneration(World world, Room room, int difficulty)
+    protected override void OnGeneration(World world, Room room, EnemyGenerator enemyGen, int difficulty)
     {
-        enemies.Add(new EnemyCharger(Position.zero, 200, 20));
+        enemies.Add(enemyGen.GenerateEnemy(Position.zero, difficulty));
     }
 
     public void EntityDied(World world, Enemy enemy)

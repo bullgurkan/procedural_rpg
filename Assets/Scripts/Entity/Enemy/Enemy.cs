@@ -1,10 +1,13 @@
 ﻿
 
 
+using System;
+using System.Collections.Generic;
+
 public abstract class Enemy : EntityLiving
 {
     int timeToSpawn;
-    public Enemy(Position pos, int spawnTime, string spriteId, string name, Position size) : base(Position.zero, spriteId, name, size)
+    public Enemy(Position pos, int spawnTime, string spriteId, string name, Position size, Dictionary<Stat, int> baseStats) : base(Position.zero, spriteId, name, baseStats, size)
     {
         timeToSpawn = spawnTime;
         PositionInRoom = pos;
@@ -25,6 +28,9 @@ public abstract class Enemy : EntityLiving
         }
        
     }
+
+
+
 
     public abstract void EnemyTick(World world);
 

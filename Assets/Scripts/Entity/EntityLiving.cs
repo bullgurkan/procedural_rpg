@@ -7,16 +7,16 @@ using static Effect;
 
 public abstract class EntityLiving : Entity, ITickable
 {
-    protected Dictionary<Stat, int> stats;
-    Dictionary<Stat, int> baseStats;
+    private Dictionary<Stat, int> stats;
+    protected Dictionary<Stat, int> baseStats;
     protected int health;
     List<Effect> effects;
 
-    public EntityLiving(Position size, string spriteId, string name, Position? renderSize = null, TagType tag = TagType.ENEMY) : base(size, renderSize, spriteId, name, tag: tag)
+    public EntityLiving(Position size, string spriteId, string name, Dictionary<Stat, int> baseStats, Position? renderSize = null, TagType tag = TagType.ENEMY) : base(size, renderSize, spriteId, name, tag: tag)
     {
         stats = new Dictionary<Stat, int>();
         effects = new List<Effect>();
-        baseStats = GenerateBaseStats();
+        this.baseStats = baseStats;
 
         foreach (var stat in baseStats)
         {
@@ -25,7 +25,6 @@ public abstract class EntityLiving : Entity, ITickable
 
         health = stats[Stat.MAX_HEALTH];
     }
-    public abstract Dictionary<Stat, int> GenerateBaseStats();
     public abstract void Tick(World world);
 
     public void Damage(int amount, Stat? resitanceStat, World world)
@@ -48,6 +47,8 @@ public abstract class EntityLiving : Entity, ITickable
     public void AddEffect(Effect effect)
     {
         effects.Add(effect);
+        RecalculateStats();
+        OnStatChange();
     }
 
     public virtual void RecalculateStats()
@@ -84,12 +85,18 @@ public abstract class EntityLiving : Entity, ITickable
         }
     }
 
+    public int GetStat(Stat stat)
+    {
+        return stats[stat];
+    }
+
     protected virtual void OnDamage(World world)
     { TriggerEffectEvents(EventType.ON_DAMAGE, world); }
     protected virtual void OnHeal(World world)
     { TriggerEffectEvents(EventType.ON_HEAL, world); }
     protected virtual void OnDeath(World world)
     { TriggerEffectEvents(EventType.ON_DEATH, world); }
+    protected virtual void OnStatChange() {}
 
     public enum Stat
     {

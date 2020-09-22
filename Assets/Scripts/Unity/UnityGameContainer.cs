@@ -32,10 +32,10 @@ class UnityGameContainer : MonoBehaviour
         List<Character> players = new List<Character>();
         players.Add(e);
 
-        world = new World(10, 10, 7600, worldRenerer, players);
+        world = new World(10, 10, 7600, worldRenerer, players, new WorldGenerator(1, 760, 3, "wall", "floor", 40, 4));
 
         Item item = new Item();
-        item.actions.Add(Effect.EventType.ON_ACTIVATION, new SpawnProjectileAction(new Position(100, 100), 100, new DamageAction(10, EntityLiving.Stat.ARMOR)));
+        item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(new SpawnProjectileAction(new Position(100, 100), 100, new DamageAction(10, EntityLiving.Stat.ARMOR)), item));
 
 
         e.ChangeEquipment(item);
@@ -45,7 +45,7 @@ class UnityGameContainer : MonoBehaviour
     void Update()
     {
         input += new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * Time.deltaTime * 60;
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKey(KeyCode.Mouse0))
         {
             mousePos = Input.mousePosition;
             activated = true;

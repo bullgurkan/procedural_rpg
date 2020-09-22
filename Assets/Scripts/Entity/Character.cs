@@ -16,14 +16,13 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name, tag:TagType.PLAYER)
+    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name, GenerateBaseStats(), tag:TagType.PLAYER)
     {
         items = new Dictionary<Slot, Item>();
         this.wallWidth = wallWidth;
-
         
     }
-    public override Dictionary<Stat, int> GenerateBaseStats()
+    public static Dictionary<Stat, int> GenerateBaseStats()
     {
         Dictionary<Stat, int> baseStats = new Dictionary<Stat, int>();
 
@@ -33,7 +32,7 @@ public class Character : EntityLiving
         }
         baseStats[Stat.ATTACK_POWER] = 10;
         baseStats[Stat.MAX_HEALTH] = 20;
-
+        baseStats[Stat.ATTACK_SPEED] = 5;
         return baseStats;
     }
 
@@ -70,7 +69,10 @@ public class Character : EntityLiving
 
     public override void Tick(World world)
     {
-
+        foreach (Item item in items.Values)
+        {
+            item.OnEvent(EventType.ON_TICK, world, this, CurrentRoom, PositionInRoom);
+        }
     }
 
     private void TriggerItemEvents(EventType e, World world)
