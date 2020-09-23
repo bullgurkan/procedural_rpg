@@ -125,6 +125,12 @@ public class Entity
         }
         */
     }
+
+    public void SetSprite(World world, string spriteId)
+    {
+        SpriteId = spriteId;
+        world.WorldRenderer.UpdateEntitySprite(this);
+    }
     public virtual void SetPositionInRoom(Position pos, World world, bool force)
     {
         Position scaledPos = pos;

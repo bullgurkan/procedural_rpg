@@ -14,7 +14,7 @@ public class EnemyCharger : Enemy
     int chargeCooldownleft;
 
     DamageAction actionOnHit;
-    public EnemyCharger(Position pos, int spawnTime, int difficulty) : base(pos, spawnTime, "", "Charger", new Position(400, 400), GenerateBaseStats(difficulty))
+    public EnemyCharger(Position pos, int spawnTime, int difficulty) : base(pos, spawnTime, "enemy_charger", "Charger", new Position(400, 400), GenerateBaseStats(difficulty))
     {
         actionOnHit = new DamageAction(GetStat(Stat.ATTACK_POWER), Stat.ARMOR);
 

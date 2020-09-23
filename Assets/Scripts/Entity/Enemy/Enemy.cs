@@ -7,10 +7,12 @@ using System.Collections.Generic;
 public abstract class Enemy : EntityLiving
 {
     int timeToSpawn;
-    public Enemy(Position pos, int spawnTime, string spriteId, string name, Position size, Dictionary<Stat, int> baseStats) : base(Position.zero, spriteId, name, baseStats, size)
+    string spriteId;
+    public Enemy(Position pos, int spawnTime, string spriteId, string name, Position size, Dictionary<Stat, int> baseStats) : base(Position.zero, "enemy_portal", name, baseStats, size)
     {
         timeToSpawn = spawnTime;
         PositionInRoom = pos;
+        this.spriteId = spriteId;
     }
     public override void Tick(World world)
     {
@@ -23,13 +25,12 @@ public abstract class Enemy : EntityLiving
             if(timeToSpawn == 0)
             {
                 SetSize(RenderSize, world, true);
+                SetSprite(world, spriteId);
             }
             timeToSpawn--;
         }
        
     }
-
-
 
 
     public abstract void EnemyTick(World world);

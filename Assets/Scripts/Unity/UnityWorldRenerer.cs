@@ -110,5 +110,15 @@ class UnityWorldRenerer : WorldRenderer
             RemoveEntity(i);
         }
     }
+
+    public override void UpdateEntitySprite(Entity entity)
+    {
+        
+        if (currentlyUsedObjects.ContainsKey(entity.Id) && spriteRegistry.ContainsKey(entity.SpriteId))
+            currentlyUsedObjects[entity.Id].sprite = spriteRegistry[entity.SpriteId];
+        else
+            Debug.Log("Entity or Sprite does not exist");
+
+    }
 }
 
