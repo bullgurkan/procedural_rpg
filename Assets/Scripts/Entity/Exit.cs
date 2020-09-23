@@ -6,7 +6,7 @@ public class Exit : Entity
 {
 
 
-    public Exit(Position size, Position? renderSize = null, string spriteId = null, string name = null) : base(size, renderSize, spriteId, name, tag: TagType.TERRAIN, isTrigger: true)
+    public Exit(Position size, Position? renderSize = null, string spriteId = null, string name = null) : base(size, renderSize, spriteId, name, tag: TagType.TERRAIN, renderPriority: WorldRenderer.RenderPriority.EXIT, isTrigger: true)
     {
    
     }
