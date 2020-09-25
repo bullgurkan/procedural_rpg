@@ -28,7 +28,7 @@ class UnityWorldRenerer : WorldRenderer
     }
     public override void AddEntity(Entity entity, World world, bool shouldCameraFollow = false)
     {
-        if(unusedObjects.Count > 0)
+        if (unusedObjects.Count > 0)
         {
             currentlyUsedObjects.Add(entity.Id, unusedObjects.Pop());
         }
@@ -47,7 +47,7 @@ class UnityWorldRenerer : WorldRenderer
         {
             currentlyUsedObjects[entity.Id].drawMode = SpriteDrawMode.Tiled;
             currentlyUsedObjects[entity.Id].transform.localScale = ToVector2(entity.TileSize);
-            currentlyUsedObjects[entity.Id].size = new Vector2(entity.RenderSize.x/ entity.TileSize.x, entity.RenderSize.y / entity.TileSize.y);
+            currentlyUsedObjects[entity.Id].size = new Vector2(entity.RenderSize.x / entity.TileSize.x, entity.RenderSize.y / entity.TileSize.y);
         }
         else
         {
@@ -68,7 +68,7 @@ class UnityWorldRenerer : WorldRenderer
 
     public override void UpdateEntityPosition(Entity entity, World world)
     {
-    
+
         if (currentlyUsedObjects.ContainsKey(entity.Id))
         {
             currentlyUsedObjects[entity.Id].transform.localPosition = EntityPosToUnityPos(entity, world);
@@ -76,7 +76,7 @@ class UnityWorldRenerer : WorldRenderer
                 Camera.main.transform.position = new Vector3(currentlyUsedObjects[entity.Id].transform.position.x, currentlyUsedObjects[entity.Id].transform.position.y, Camera.main.transform.position.z);
 
         }
-           
+
     }
 
     public override void RemoveEntity(int id)
@@ -93,7 +93,7 @@ class UnityWorldRenerer : WorldRenderer
     }
     private Vector2 ToVector2(Position pos)
     {
-        return new Vector2(pos.x, pos.y)/ positionUnitsPerUnityUnit;
+        return new Vector2(pos.x, pos.y) / positionUnitsPerUnityUnit;
     }
 
     public Position FromVector2ToPlayerPosition(Vector2 pos, World world)
@@ -113,11 +113,11 @@ class UnityWorldRenerer : WorldRenderer
 
     public override void UpdateEntitySprite(Entity entity)
     {
-        
-        if (currentlyUsedObjects.ContainsKey(entity.Id) && spriteRegistry.ContainsKey(entity.SpriteId))
-            currentlyUsedObjects[entity.Id].sprite = spriteRegistry[entity.SpriteId];
+
+        if (currentlyUsedObjects.ContainsKey(entity.Id))
+            currentlyUsedObjects[entity.Id].sprite = entity.SpriteId != null ? (spriteRegistry.ContainsKey(entity.SpriteId) ? spriteRegistry[entity.SpriteId] : spriteRegistry["default"]) : spriteRegistry["default"];
         else
-            Debug.Log("Entity or Sprite does not exist");
+            Debug.Log("Entity does not exist");
 
     }
 }

@@ -18,5 +18,7 @@ public class UnlockRoomAction : Action
     {
         ambushLogic.EntityDied(world, entityLiving as Enemy);
     }
+
+    public override string ToString() => $"UnlockRoomAction(LinkedRoomLogicToUnlock:{ambushLogic})";
 }
 

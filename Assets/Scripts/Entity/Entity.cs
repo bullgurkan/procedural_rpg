@@ -25,7 +25,7 @@ public class Entity
 
     public enum TagType
     {
-        TERRAIN, PLAYER, PROJECTILE_PASSABLE, PROJECTILE_SOLID, ENEMY
+        TERRAIN, PLAYER, PROJECTILE_PASSABLE, PROJECTILE_SOLID, ENEMY, PICKUP
     }
     public TagType Tag { get; private  set; }
 

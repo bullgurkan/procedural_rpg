@@ -16,11 +16,11 @@ public class Character : EntityLiving
     }
 
 
-    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name, GenerateBaseStats(), tag:TagType.PLAYER)
+    public Character(Position size, int wallWidth, string spriteId = null, string name = null) : base(size, spriteId, name, GenerateBaseStats(), tag: TagType.PLAYER)
     {
         items = new Dictionary<Slot, Item>();
         this.wallWidth = wallWidth;
-        
+
     }
     public static Dictionary<Stat, int> GenerateBaseStats()
     {
@@ -36,10 +36,14 @@ public class Character : EntityLiving
         return baseStats;
     }
 
-    public void ChangeEquipment(Item item)
+    public Item ChangeEquipment(Item item)
     {
+        Item prevItem = null;
+        if (items.ContainsKey(item.Slot))
+            prevItem = items[item.Slot];
         items[item.Slot] = item;
         RecalculateStats();
+        return prevItem;
     }
 
     public override void RecalculateStats()
@@ -59,7 +63,7 @@ public class Character : EntityLiving
     }
     public override void OnPositionChange(World world)
     {
-        if (!triggeredRoomEnter && PositionInRoom.x < world.RoomSize / 2 - (Size.x + wallWidth) && PositionInRoom.x > (Size.x + wallWidth) - world.RoomSize / 2 && PositionInRoom.y < world.RoomSize / 2 - (Size.y + wallWidth) && PositionInRoom.y > (Size.y + wallWidth) - world.RoomSize / 2)
+        if (!triggeredRoomEnter && PositionInRoom.x < (world.RoomSize - (Size.x + wallWidth)) / 2 && PositionInRoom.x > ((Size.x + wallWidth) - world.RoomSize) / 2 && PositionInRoom.y < (world.RoomSize - (Size.y + wallWidth)) / 2 && PositionInRoom.y > ((Size.y + wallWidth) - world.RoomSize) / 2)
         {
             //UnityEngine.Debug.Log(world.GetRoom(CurrentRoom).roomLogic);
             world.GetRoom(CurrentRoom).OnRoomEnter(world, this);
@@ -91,12 +95,29 @@ public class Character : EntityLiving
         }
     }
 
+    public void PickUpItem(World world)
+    {
+        ItemPickup itemPickup = (ItemPickup)world.BoxCastAll(CurrentRoom, PositionInRoom, Size).Find(x => x is ItemPickup);
+
+        if (itemPickup != null)
+        {
+            Item itemToPickUp = itemPickup.PickupItem(world);
+            UnityEngine.Debug.Log(itemToPickUp);
+            Item itemToDrop = ChangeEquipment(itemToPickUp);
+            if (itemToDrop != null)
+                world.AddEntity(new ItemPickup(itemToDrop), itemPickup.CurrentRoom, itemPickup.PositionInRoom);
+        }
+
+    }
+
     protected override void OnDamage(World world)
-    { base.OnDamage(world);  TriggerItemEvents(EventType.ON_DAMAGE, world);}
+    { base.OnDamage(world); TriggerItemEvents(EventType.ON_DAMAGE, world); }
     protected override void OnHeal(World world)
-    { base.OnHeal(world); TriggerItemEvents(EventType.ON_HEAL, world);}
+    { base.OnHeal(world); TriggerItemEvents(EventType.ON_HEAL, world); }
     protected override void OnDeath(World world)
-    { base.OnDeath(world);
+    {
+        base.OnDeath(world);
         UnityEngine.Debug.Log("Dead");
-        TriggerItemEvents(EventType.ON_DEATH, world); }
+        TriggerItemEvents(EventType.ON_DEATH, world);
+    }
 }

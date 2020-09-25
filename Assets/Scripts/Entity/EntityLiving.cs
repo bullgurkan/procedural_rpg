@@ -89,6 +89,11 @@ public abstract class EntityLiving : Entity, ITickable
     {
         return stats[stat];
     }
+    public void SetStat(Stat stat, int amount)
+    {
+        stats[stat] = amount;
+    }
+
 
     protected virtual void OnDamage(World world)
     { TriggerEffectEvents(EventType.ON_DAMAGE, world); }

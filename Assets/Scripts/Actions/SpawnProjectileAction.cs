@@ -22,8 +22,10 @@ public class SpawnProjectileAction : Action
     {
         Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, entityLiving.CurrentRoom) - entityLiving.PositionInRoom;
 
-        List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE};
+        List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE, TagType.PICKUP};
         world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, tagsToIgnore:tagsToIgnore), entityLiving.CurrentRoom, entityLiving.PositionInRoom + delta * entityLiving.Size.x / delta.Magnitude);
     }
+
+    public override string ToString() => $"SpawnProjectileAction(Size:{size}, Speed:{speed}, ActionToUseOnProjectileHit:{actionToUseOnProjectileHit})";
 }
 

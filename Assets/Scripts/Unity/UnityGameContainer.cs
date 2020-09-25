@@ -13,6 +13,7 @@ class UnityGameContainer : MonoBehaviour
 
     Vector2 input;
     bool activated;
+    bool pickupItem;
     Vector2 mousePos;
     Character e;
     World world;
@@ -34,7 +35,7 @@ class UnityGameContainer : MonoBehaviour
 
         world = new World(10, 10, 7600, worldRenerer, players, new WorldGenerator(1, 760, 3, "wall", "floor", 40, 4));
 
-        Item item = new Item();
+        Item item = new Item(Character.Slot.WEAPON);
         item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(new SpawnProjectileAction(new Position(100, 100), 100, new DamageAction(10, EntityLiving.Stat.ARMOR)), item));
 
 
@@ -51,6 +52,8 @@ class UnityGameContainer : MonoBehaviour
             activated = true;
         }
 
+        if (Input.GetKeyDown(KeyCode.E))
+            pickupItem = true;
     }
 
     private void FixedUpdate()
@@ -62,9 +65,14 @@ class UnityGameContainer : MonoBehaviour
 
         if (activated)
         {
-            
             e.Activate(world, worldRenerer.FromVector2ToPlayerPosition(Camera.main.ScreenToWorldPoint(mousePos), world));
             activated = false;
+        }
+
+        if (pickupItem)
+        {
+            e.PickUpItem(world);
+            pickupItem = false;
         }
            
 

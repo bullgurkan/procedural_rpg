@@ -16,7 +16,7 @@ public class StartRoomLogic : RoomLogic
        
     }
 
-    protected override void OnGeneration(World world, Room room, EnemyGenerator enemyGen, int difficulty)
+    protected override void OnGeneration(World world, Room room, WorldGenerator worldGen, int difficulty)
     {
         int currentPos = 0;
         foreach (Character player in world.players)

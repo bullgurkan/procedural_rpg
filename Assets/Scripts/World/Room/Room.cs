@@ -22,8 +22,7 @@ public class Room
 
     private List<Entity> doors;
     private List<Position> roomLocks;
-
-
+    bool hasBeenEntered = false;
 
 
     public Room(Position roomPos)
@@ -76,7 +75,21 @@ public class Room
 
     public void OnRoomEnter(World world, Character character)
     {
-        roomLogic?.OnRoomEnter(world, this, character);
+
+        if (!hasBeenEntered)
+        {
+            hasBeenEntered = true;
+            roomLogic?.OnRoomEnter(world, this, character);
+            for (int i = 0; i < roomSides.Length; i++)
+            {
+                if (roomSides[i] == RoomSide.OPEN)
+                {
+                    world.GetRoom(RoomPosition + Position.directions[i]).OnRoomEnter(world, character);
+                }
+
+            }
+        }
+        
     }
 
     public void AddRoomLockToMultRoom(World world, Position roomThatLocked)

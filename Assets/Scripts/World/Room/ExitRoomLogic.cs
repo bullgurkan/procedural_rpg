@@ -16,7 +16,7 @@ public class ExitRoomLogic : RoomLogic
         
     }
 
-    protected override void OnGeneration(World world, Room room, EnemyGenerator enemyGen, int difficulty)
+    protected override void OnGeneration(World world, Room room, WorldGenerator worldGen, int difficulty)
     {
         world.AddEntity(new Exit(Position.one * world.RoomSize/2, spriteId:"exit", name:"exit"), room.RoomPosition, Position.zero);
 

@@ -8,7 +8,7 @@ using static EntityLiving;
 public class Effect
 {
     public Dictionary<EventType, Action> actions;
-    public Dictionary<Stat, float> stats;
+    public Dictionary<Stat, int> stats;
     public Dictionary<EffectData, object> effectData;
 
     public enum EventType
@@ -24,7 +24,7 @@ public class Effect
     public Effect()
     {
         actions = new Dictionary<EventType, Action>();
-        stats = new Dictionary<Stat, float>();
+        stats = new Dictionary<Stat, int>();
         effectData = new Dictionary<EffectData, object>();
     }
     public void OnEvent(EventType eventType, World world, EntityLiving entityLiving, Position room, Position positionInRoom)
@@ -35,7 +35,39 @@ public class Effect
 
     public void ModifyStats(EntityLiving entity)
     {
-        
+        foreach (Stat stat in stats.Keys)
+        {
+            entity.SetStat(stat, entity.GetStat(stat) + stats[stat]);
+            UnityEngine.Debug.Log(stat + " " + entity.GetStat(stat));
+        }
+
+    }
+
+    public override string ToString()
+    {
+        string s = "Stats:(";
+        int i = 0;
+        foreach (var stat in stats)
+        {
+            i++;
+            s += stat.Key + ":" + stat.Value;
+            if (i < stats.Count)
+                s += ",";
+        }
+        s += ")";
+
+        s += "Actions:(";
+        i = 0;
+        foreach (var action in actions)
+        {
+            i++;
+            s += action.Key + ":" + action.Value;
+            if (i < actions.Count)
+                s += ",";
+        }
+        s += ")";
+
+        return s;
     }
 }
 

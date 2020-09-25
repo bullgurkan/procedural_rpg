@@ -84,7 +84,7 @@ public class World
         entitiesToRemove.Add(id);
     }
 
-    public void RemoveEntity(int id)
+    private void RemoveEntity(int id)
     {
         if (entities[id] is ITickable)
             tickables.Remove((ITickable)entities[id]);
@@ -200,6 +200,33 @@ public class World
         }
 
         return null;
+    }
+
+    public List<Entity> BoxCastAll(Position roomPosition, Position pos, Position size)
+    {
+        List<Entity> colliders = new List<Entity>();
+        foreach (int id in GetRoom(roomPosition).entityIds)
+        {
+            Entity entity = entities[id];
+            if (IsColliding(pos, size, entity.PositionInRoom, entity.Size))
+                colliders.Add(entity);
+        }
+
+        foreach (Position direciton in Position.directions)
+        {
+            Position room2 = roomPosition + direciton;
+            if (GetRoom(room2) != null)
+            {
+                foreach (int id in GetRoom(room2).entityIds)
+                {
+                    Entity entity = entities[id];
+                    if (IsColliding(pos, size, ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition), entity.Size))
+                        colliders.Add(entity);
+                }
+            }
+        }
+
+        return colliders;
     }
 
     public Entity CheckEntityMovement(Entity entityToCast, Position pos)

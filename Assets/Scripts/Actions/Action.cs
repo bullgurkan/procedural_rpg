@@ -8,5 +8,6 @@ using static Effect;
 public abstract class Action
 {
     public abstract void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData);
+    public abstract override string ToString();
 }
 

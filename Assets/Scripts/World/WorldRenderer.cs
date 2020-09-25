@@ -15,7 +15,7 @@ public abstract class WorldRenderer
 
     public enum RenderPriority
     {
-        FLOOR, EXIT, WALL, DEFAULT, FOREGROUND
+        FLOOR, EXIT, WALL, PICKUP, DEFAULT, PROJECTILE, FOREGROUND
     }
 
    

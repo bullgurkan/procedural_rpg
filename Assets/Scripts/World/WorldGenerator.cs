@@ -22,7 +22,8 @@ public class WorldGenerator
 
     private readonly int wallWidth, doorWidth;
     private readonly Position tileSize;
-    private EnemyGenerator enemyGen;
+    public EnemyGenerator enemyGen;
+    public ItemGenerator itemGenerator;
     private int precentOfRoomWithLogic;
 
     public WorldGenerator(int seed, int wallWidth, int doorWithInTiles, string wallSprite, string floorSprite, int precentOfRoomWithLogic, int startingDifficulty)
@@ -37,13 +38,14 @@ public class WorldGenerator
         roomLogicRegistry = new List<RoomLogic>();
         roomsWithLogicToGenerate = new List<RoomLogic>();
         enemyGen = new EnemyGenerator();
+        itemGenerator = new ItemGenerator(random, 10, 2);
         this.precentOfRoomWithLogic = precentOfRoomWithLogic;
 
 
 
 
         roomLogicRegistry.Add(new RoomLogicTrapAmbush());
-
+        roomLogicRegistry.Add(new ItemRoomLogic());
 
     }
 
@@ -238,7 +240,7 @@ public class WorldGenerator
         foreach (RoomLogic room in roomsWithLogicToGenerate)
         {
             if (emptyRooms.Count > 0)
-                room.Generate(world, random, emptyRooms, enemyGen, difficulty);
+                room.Generate(world, random, emptyRooms, this, difficulty);
         }
 
     }

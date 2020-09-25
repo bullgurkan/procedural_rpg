@@ -19,5 +19,7 @@ public class DamageAction : Action
     {
         entityLiving.Damage(amount, resitance, world);
     }
+
+    public override string ToString() => $"DamageAction(Amount:{amount}, AttackType:{resitance})";
 }
 

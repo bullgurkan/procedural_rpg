@@ -10,7 +10,7 @@ public class Projectile : Entity, ITickable
     Position direction;
     Action actionToUseOnHit;
 
-    public Projectile(Position size, Position directionAndSpeed, Action actionToUseOnHit, Position? renderSize = null, string spriteId = null, string name = null, bool passable = true, List<TagType> tagsToIgnore = null) : base(size, renderSize, spriteId, name, tag: passable ? TagType.PROJECTILE_PASSABLE : TagType.PROJECTILE_SOLID, tagsToIgnore:tagsToIgnore, isTrigger:true)
+    public Projectile(Position size, Position directionAndSpeed, Action actionToUseOnHit, Position? renderSize = null, string spriteId = null, string name = null, bool passable = true, List<TagType> tagsToIgnore = null) : base(size, renderSize, spriteId, name, renderPriority: WorldRenderer.RenderPriority.PROJECTILE, tag: passable ? TagType.PROJECTILE_PASSABLE : TagType.PROJECTILE_SOLID, tagsToIgnore:tagsToIgnore, isTrigger:true)
     {
         direction = directionAndSpeed;
         this.actionToUseOnHit = actionToUseOnHit;

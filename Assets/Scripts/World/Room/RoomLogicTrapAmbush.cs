@@ -44,9 +44,9 @@ public class RoomLogicTrapAmbush : RoomLogic
             
     }
 
-    protected override void OnGeneration(World world, Room room, EnemyGenerator enemyGen, int difficulty)
+    protected override void OnGeneration(World world, Room room, WorldGenerator worldGen, int difficulty)
     {
-        enemies.Add(enemyGen.GenerateEnemy(Position.zero, difficulty));
+        enemies.Add(worldGen.enemyGen.GenerateEnemy(Position.zero, difficulty));
     }
 
     public void EntityDied(World world, Enemy enemy)
