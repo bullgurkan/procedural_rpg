@@ -8,18 +8,18 @@ using static EntityLiving;
 
 public class DamageAction : Action
 {
-    public int amount;
-    Stat resitance;
-    public DamageAction(int amount, Stat resitance)
+
+    Stat damageScaling, resitance;
+    public DamageAction(Stat damageScaling, Stat resitance)
     {
-        this.amount = amount;
+        this.damageScaling = damageScaling;
         this.resitance = resitance;
     }
-    public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
     {
-        entityLiving.Damage(amount, resitance, world);
+        caster.Heal(world, caster, reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance) * 100/caster.GetStat(Stat.LIFESTEAL));
     }
 
-    public override string ToString() => $"DamageAction(Amount:{amount}, AttackType:{resitance})";
+    public override string ToString() => $"DamageAction(Scaling:{damageScaling}, AttackType:{resitance})";
 }
 

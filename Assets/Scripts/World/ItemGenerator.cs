@@ -2,25 +2,26 @@
 using static EntityLiving;
 using static Character;
 using System.Collections.Generic;
+using static Effect;
 
 public class ItemGenerator
 {
     Random random;
-    int powerLevel, maxEffectLayers;
-    List<Stat> offensiveStats, defenseiveStats;
+    int powerLevel, maxDepth;
+    List<Stat> offensiveStats, resistanceStats;
 
     public ItemGenerator(Random random, int powerLevel, int maxEffectLayers)
     {
         this.random = random;
         this.powerLevel = powerLevel;
-        this.maxEffectLayers = maxEffectLayers;
+        this.maxDepth = maxEffectLayers;
         offensiveStats = new List<Stat>()
         {
             Stat.ATTACK_POWER, Stat.ATTACK_SPEED, Stat.LIFESTEAL, Stat.MOVEMENT_SPEED, Stat.LUCK
         };
-        defenseiveStats = new List<Stat>()
+        resistanceStats = new List<Stat>()
         {
-            Stat.ARMOR, Stat.DARK_RESITANCE, Stat.EARTH_RESITANCE, Stat.FIRE_RESITANCE, Stat.LIGHT_RESITANCE, Stat.MAX_HEALTH
+            Stat.ARMOR, Stat.DARK_RESITANCE, Stat.EARTH_RESITANCE, Stat.FIRE_RESITANCE, Stat.LIGHT_RESITANCE
         };
     }
     public Item GenerateItem()
@@ -36,11 +37,15 @@ public class ItemGenerator
             case Slot.HEAD: GiveRandomDefensiveStats(item, 3); break;
             case Slot.RING: GiveRandomOffensiveStats(item, 3); break;
             case Slot.AMULET: GiveRandomOffensiveStats(item, 3); break;
-            case Slot.WEAPON: item.stats[Stat.ATTACK_POWER] += random.Next(powerLevel) * 4; GiveRandomOffensiveStats(item, 1); break;
+            case Slot.WEAPON: AddStat(item, Stat.ATTACK_POWER, random.Next(1, powerLevel * 4)); GiveRandomOffensiveStats(item, 1); break;
             case Slot.CAPE: GiveRandomOffensiveStats(item, 3); break;
             default: break;
         }
 
+        if(item.Slot == Slot.WEAPON)
+            GiveRandomAction(item, EventType.ON_ACTIVATION);
+        else if(random.Next(0, 100/powerLevel) == 0)
+            GiveRandomAction(item, null);
 
         return item;
     }
@@ -49,7 +54,7 @@ public class ItemGenerator
     {
         for (int i = 0; i < amount; i++)
         {
-            AddStat(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), random.Next(powerLevel));
+            AddStat(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), random.Next(1, powerLevel));
         }
     }
 
@@ -57,7 +62,10 @@ public class ItemGenerator
     {
         for (int i = 0; i < amount; i++)
         {
-            AddStat(item, defenseiveStats[random.Next(defenseiveStats.Count)], random.Next(powerLevel));
+            if (random.Next(6) == 0)
+                AddStat(item, Stat.MAX_HEALTH, random.Next(1, powerLevel));
+            else
+                AddStat(item, resistanceStats[random.Next(resistanceStats.Count)], random.Next(1, powerLevel));
         }
     }
 
@@ -65,7 +73,37 @@ public class ItemGenerator
     {
         for (int i = 0; i < amount; i++)
         {
-            AddStat(item, offensiveStats[random.Next(offensiveStats.Count)], random.Next(powerLevel));
+            AddStat(item, offensiveStats[random.Next(offensiveStats.Count)], random.Next(1, powerLevel));
+        }
+    }
+    private void GiveRandomAction(Item item, EventType? eventType)
+    {
+       
+        item.actions.Add(eventType ?? (EventType)random.Next(1, Enum.GetValues(typeof(EventType)).Length), GenerateRandomAction(0));
+    }
+
+    private Action GenerateRandomAction(int depth)
+    {
+        switch (random.Next(10))
+        {
+            case 0:
+                if (depth > 0)
+                {
+                    if (random.Next(4) == 0)
+                         return new DamageAction(offensiveStats[random.Next(offensiveStats.Count)], resistanceStats[random.Next(resistanceStats.Count)]);
+                    else
+                        return new DamageAction(Stat.ATTACK_POWER, resistanceStats[random.Next(resistanceStats.Count)]);
+                }
+                else
+                {
+                    goto case 1;
+                }
+            case 1:
+                if(depth < maxDepth)
+                    return new SpawnProjectileAction(Position.one * random.Next(200, (100 + powerLevel * 5) * 2), random.Next(powerLevel), GenerateRandomAction(depth + 1));
+                goto case 0;
+            default:
+                return null;
         }
     }
 

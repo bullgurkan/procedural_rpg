@@ -14,9 +14,9 @@ public class UnlockRoomAction : Action
     {
         this.ambushLogic = ambushLogic;
     }
-    public override void OnActivation(World world, EntityLiving entityLiving, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
     {
-        ambushLogic.EntityDied(world, entityLiving as Enemy);
+        ambushLogic.EntityDied(world, caster as Enemy);
     }
 
     public override string ToString() => $"UnlockRoomAction(LinkedRoomLogicToUnlock:{ambushLogic})";

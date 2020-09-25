@@ -30,8 +30,8 @@ public class Character : EntityLiving
         {
             baseStats.Add(stat, 1);
         }
-        baseStats[Stat.ATTACK_POWER] = 10;
-        baseStats[Stat.MAX_HEALTH] = 20;
+        baseStats[Stat.ATTACK_POWER] = 1;
+        baseStats[Stat.MAX_HEALTH] = 10;
         baseStats[Stat.ATTACK_SPEED] = 5;
         return baseStats;
     }
@@ -51,11 +51,15 @@ public class Character : EntityLiving
 
         base.RecalculateStats();
 
+        int prevMaxHealth = GetStat(Stat.MAX_HEALTH);
+
         foreach (var item in items)
         {
 
             item.Value.ModifyStats(this);
         }
+
+        health += GetStat(Stat.MAX_HEALTH) - prevMaxHealth;
     }
     public override void OnRoomChange(World world)
     {
@@ -75,15 +79,15 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_TICK, world, this, CurrentRoom, PositionInRoom);
+            item.OnEvent(EventType.ON_TICK, world, this, null, CurrentRoom, PositionInRoom);
         }
     }
 
-    private void TriggerItemEvents(EventType e, World world)
+    private void TriggerItemEvents(EventType e, EntityLiving causer, World world)
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(e, world, this, CurrentRoom, PositionInRoom);
+            item.OnEvent(e, world, this, causer, CurrentRoom, PositionInRoom);
         }
     }
 
@@ -91,7 +95,7 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_ACTIVATION, world, this, CurrentRoom, activationPos);
+            item.OnEvent(EventType.ON_ACTIVATION, world, this, null, CurrentRoom, activationPos);
         }
     }
 
@@ -110,14 +114,14 @@ public class Character : EntityLiving
 
     }
 
-    protected override void OnDamage(World world)
-    { base.OnDamage(world); TriggerItemEvents(EventType.ON_DAMAGE, world); }
-    protected override void OnHeal(World world)
-    { base.OnHeal(world); TriggerItemEvents(EventType.ON_HEAL, world); }
-    protected override void OnDeath(World world)
+    protected override void OnDamage(World world, EntityLiving causer)
+    { base.OnDamage(world, causer); TriggerItemEvents(EventType.ON_DAMAGE, causer, world); }
+    protected override void OnHeal(World world, EntityLiving causer)
+    { base.OnHeal(world, causer); TriggerItemEvents(EventType.ON_HEAL, causer, world); }
+    protected override void OnDeath(World world, EntityLiving causer)
     {
-        base.OnDeath(world);
-        UnityEngine.Debug.Log("Dead");
-        TriggerItemEvents(EventType.ON_DEATH, world);
+        base.OnDeath(world, causer);
+        UnityEngine.Debug.Log("killed by " + causer);
+        TriggerItemEvents(EventType.ON_DEATH, causer, world);
     }
 }

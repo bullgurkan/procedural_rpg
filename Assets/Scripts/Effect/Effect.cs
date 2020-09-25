@@ -13,7 +13,7 @@ public class Effect
 
     public enum EventType
     {
-        ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_ACTIVATION, ON_DEATH, ON_TICK
+        ON_ACTIVATION ,ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_DEATH, ON_TICK
     }
 
     public enum EffectData
@@ -27,10 +27,10 @@ public class Effect
         stats = new Dictionary<Stat, int>();
         effectData = new Dictionary<EffectData, object>();
     }
-    public void OnEvent(EventType eventType, World world, EntityLiving entityLiving, Position room, Position positionInRoom)
+    public void OnEvent(EventType eventType, World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom)
     {
         if(actions.ContainsKey(eventType))
-            actions[eventType].OnActivation(world, entityLiving, room, positionInRoom, effectData);
+            actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, effectData);
     }
 
     public void ModifyStats(EntityLiving entity)
@@ -38,7 +38,6 @@ public class Effect
         foreach (Stat stat in stats.Keys)
         {
             entity.SetStat(stat, entity.GetStat(stat) + stats[stat]);
-            UnityEngine.Debug.Log(stat + " " + entity.GetStat(stat));
         }
 
     }

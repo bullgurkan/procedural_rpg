@@ -35,6 +35,6 @@ public abstract class Enemy : EntityLiving
 
     public abstract void EnemyTick(World world);
 
-    protected override void OnDeath(World world) { base.OnDeath(world); world.QueueEntityRemoval(Id); }
+    protected override void OnDeath(World world, EntityLiving causer) { base.OnDeath(world, causer); world.QueueEntityRemoval(Id); }
 
 }
