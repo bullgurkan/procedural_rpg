@@ -44,7 +44,7 @@ public class ItemGenerator
 
         if(item.Slot == Slot.WEAPON)
             GiveRandomAction(item, EventType.ON_ACTIVATION);
-        else if(random.Next(0, 100/powerLevel) == 0)
+        else //if(random.Next(0, 100/powerLevel) == 0)
             GiveRandomAction(item, null);
 
         return item;
@@ -78,8 +78,18 @@ public class ItemGenerator
     }
     private void GiveRandomAction(Item item, EventType? eventType)
     {
-       
-        item.actions.Add(eventType ?? (EventType)random.Next(1, Enum.GetValues(typeof(EventType)).Length), GenerateRandomAction(0));
+        EventType eventTypeSafe = eventType ?? (EventType)random.Next(1, Enum.GetValues(typeof(EventType)).Length);
+        Action action = null;
+        if (eventTypeSafe == EventType.ON_TICK)
+            action = new CooldownAction(GenerateRandomAction(0), item);
+        else
+            action = GenerateRandomAction(0);
+        if (item.actions.ContainsKey(eventTypeSafe))
+        {
+            item.actions[eventTypeSafe] = new MultiAction(action , item.actions[eventTypeSafe]);
+        }
+        else
+        item.actions.Add(eventTypeSafe, action);
     }
 
     private Action GenerateRandomAction(int depth)
@@ -100,10 +110,10 @@ public class ItemGenerator
                 }
             case 1:
                 if(depth < maxDepth)
-                    return new SpawnProjectileAction(Position.one * random.Next(200, (100 + powerLevel * 5) * 2), random.Next(powerLevel), GenerateRandomAction(depth + 1));
+                    return new SpawnProjectileAction(Position.one * random.Next(200, (100 + powerLevel * 5) * 2), random.Next(1, powerLevel) * 10, GenerateRandomAction(depth + 1));
                 goto case 0;
             default:
-                return null;
+                goto case 0;
         }
     }
 

@@ -44,9 +44,9 @@ public class World
 
     public void Tick()
     {
-        foreach (var tickable in tickables)
+        for (int i = 0; i < tickables.Count;i++)
         {
-            tickable.Tick(this);
+            tickables[i].Tick(this);
         }
 
         if(entitiesToRemove.Count > 0)

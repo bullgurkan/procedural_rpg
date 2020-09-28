@@ -28,7 +28,7 @@ public abstract class EntityLiving : Entity, ITickable
     public abstract void Tick(World world);
 
     public int Damage(World world, EntityLiving caster, int amount, Stat? resitanceStat)
-    {
+    { 
         if (amount < 0)
         {
             
@@ -77,6 +77,8 @@ public abstract class EntityLiving : Entity, ITickable
             return -Damage(world, caster, -amount, Stat.LIGHT_RESITANCE);
         }
         health += amount;
+        if (health > GetStat(Stat.MAX_HEALTH))
+            health = GetStat(Stat.MAX_HEALTH);
         OnHeal(world, caster);
         return amount;
     }
@@ -85,7 +87,7 @@ public abstract class EntityLiving : Entity, ITickable
     {
         foreach (Effect effect in effects)
         {
-            effect.OnEvent(e, world, this, causer, CurrentRoom, PositionInRoom);
+            effect.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom);
         }
     }
 

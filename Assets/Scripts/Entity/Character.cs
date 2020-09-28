@@ -87,7 +87,7 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(e, world, this, causer, CurrentRoom, PositionInRoom);
+            item.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom);
         }
     }
 
