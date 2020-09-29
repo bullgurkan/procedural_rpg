@@ -14,7 +14,7 @@ public class UnlockRoomAction : Action
     {
         this.ambushLogic = ambushLogic;
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
         ambushLogic.EntityDied(world, caster as Enemy);
     }

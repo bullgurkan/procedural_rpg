@@ -10,7 +10,7 @@ public class Item : Effect
     public Character.Slot Slot { get; private set; }
     public string spriteId;
 
-    public Item(Character.Slot slot)
+    public Item(Character.Slot slot) : base()
     {
         Slot = slot;
     }

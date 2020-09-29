@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using static Effect;
 
 public class MultiAction : Action
 {
@@ -19,11 +19,11 @@ public class MultiAction : Action
     {
         actions.Add(action);
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<Effect.EffectData, object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
         foreach (Action action in actions)
         {
-            action.OnActivation(world, caster, reciver, room, positionInRoom, effectData);
+            action.OnActivation(world, caster, reciver, room, positionInRoom, source, usedEventTypes);
         }
     }
 

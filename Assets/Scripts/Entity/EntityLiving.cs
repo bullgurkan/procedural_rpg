@@ -27,21 +27,21 @@ public abstract class EntityLiving : Entity, ITickable
     }
     public abstract void Tick(World world);
 
-    public int Damage(World world, EntityLiving caster, int amount, Stat? resitanceStat)
+    public int Damage(World world, EntityLiving caster, int amount, Stat? resitanceStat, List<EventType> usedEventTypes)
     { 
         if (amount < 0)
         {
             
-            return -Heal(world, caster, -amount);
+            return -Heal(world, caster, -amount, usedEventTypes);
         }
         int resistance = resitanceStat != null ? stats[(Stat)resitanceStat] : 0;
         int postMitigationDamage = (int)(amount * Math.Pow(0.5, (double)resistance / 100));
         health -= postMitigationDamage;
-        OnDamage(world, caster);
+        OnDamage(world, caster, usedEventTypes);
 
         if (health <= 0)
         {
-            OnDeath(world, caster);
+            OnDeath(world, caster, usedEventTypes);
         }
         return postMitigationDamage;
     }
@@ -49,8 +49,12 @@ public abstract class EntityLiving : Entity, ITickable
     public void AddEffect(Effect effect)
     {
         effects.Add(effect);
-        RecalculateStats();
-        OnStatChange();
+        if(effects.Find(x => x.source == effect.source) == null)
+        {
+            RecalculateStats();
+            OnStatChange();
+        }
+        
     }
 
     public virtual void RecalculateStats()
@@ -69,25 +73,25 @@ public abstract class EntityLiving : Entity, ITickable
         health += stats[Stat.MAX_HEALTH] - prevMaxHealth;
     }
 
-    public int Heal(World world, EntityLiving caster, int amount)
+    public int Heal(World world, EntityLiving caster, int amount, List<EventType> usedEventTypes)
     {
         if (amount < 0)
         {
             
-            return -Damage(world, caster, -amount, Stat.LIGHT_RESITANCE);
+            return -Damage(world, caster, -amount, Stat.LIGHT_RESITANCE, usedEventTypes);
         }
         health += amount;
         if (health > GetStat(Stat.MAX_HEALTH))
             health = GetStat(Stat.MAX_HEALTH);
-        OnHeal(world, caster);
+        OnHeal(world, caster, usedEventTypes);
         return amount;
     }
 
-    private void TriggerEffectEvents(EventType e, EntityLiving causer, World world)
+    private void TriggerEffectEvents(EventType e, EntityLiving causer, World world, List<EventType> usedEventTypes)
     {
         foreach (Effect effect in effects)
         {
-            effect.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom);
+            effect.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom, usedEventTypes);
         }
     }
 
@@ -106,12 +110,16 @@ public abstract class EntityLiving : Entity, ITickable
     }
 
 
-    protected virtual void OnDamage(World world, EntityLiving causer)
-    { TriggerEffectEvents(EventType.ON_DAMAGE, causer, world); }
-    protected virtual void OnHeal(World world, EntityLiving causer)
-    { TriggerEffectEvents(EventType.ON_HEAL, causer, world); }
-    protected virtual void OnDeath(World world, EntityLiving causer)
-    { TriggerEffectEvents(EventType.ON_DEATH, causer, world); }
+    protected virtual void OnDamage(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { TriggerEffectEvents(EventType.ON_DAMAGE, causer, world, usedEventTypes); }
+    protected virtual void OnHeal(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { TriggerEffectEvents(EventType.ON_HEAL, causer, world, usedEventTypes); }
+    protected virtual void OnDeath(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { TriggerEffectEvents(EventType.ON_DEATH, causer, world, usedEventTypes); }
+    public virtual void OnEnemyKill(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { TriggerEffectEvents(EventType.ON_ENEMY_KILL, causer, world, usedEventTypes); }
+    public virtual void OnEnemyHit(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { TriggerEffectEvents(EventType.ON_ENEMY_HIT, causer, world, usedEventTypes); }
     protected virtual void OnStatChange() {}
 
     public enum Stat

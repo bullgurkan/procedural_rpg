@@ -79,15 +79,15 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_TICK, world, this, null, CurrentRoom, PositionInRoom);
+            item.OnEvent(EventType.ON_TICK, world, this, null, CurrentRoom, PositionInRoom, new List<EventType>());
         }
     }
 
-    private void TriggerItemEvents(EventType e, EntityLiving causer, World world)
+    private void TriggerItemEvents(EventType e, EntityLiving causer, World world, List<EventType> usedEventTypes)
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom);
+            item.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom, usedEventTypes);
         }
     }
 
@@ -95,7 +95,7 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_ACTIVATION, world, this, null, CurrentRoom, activationPos);
+            item.OnEvent(EventType.ON_ACTIVATION, world, this, null, CurrentRoom, activationPos, new List<EventType>());
         }
     }
 
@@ -114,14 +114,18 @@ public class Character : EntityLiving
 
     }
 
-    protected override void OnDamage(World world, EntityLiving causer)
-    { base.OnDamage(world, causer); TriggerItemEvents(EventType.ON_DAMAGE, causer, world); }
-    protected override void OnHeal(World world, EntityLiving causer)
-    { base.OnHeal(world, causer); TriggerItemEvents(EventType.ON_HEAL, causer, world); }
-    protected override void OnDeath(World world, EntityLiving causer)
+    protected override void OnDamage(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { base.OnDamage(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_DAMAGE, causer, world, usedEventTypes); }
+    protected override void OnHeal(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { base.OnHeal(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_HEAL, causer, world, usedEventTypes); }
+    protected override void OnDeath(World world, EntityLiving causer, List<EventType> usedEventTypes)
     {
-        base.OnDeath(world, causer);
+        base.OnDeath(world, causer, usedEventTypes);
         UnityEngine.Debug.Log("killed by " + causer);
-        TriggerItemEvents(EventType.ON_DEATH, causer, world);
+        TriggerItemEvents(EventType.ON_DEATH, causer, world, usedEventTypes);
     }
+    public override void OnEnemyKill(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { base.OnDamage(world, causer, usedEventTypes);  TriggerItemEvents(EventType.ON_ENEMY_KILL, causer, world, usedEventTypes); }
+    public override void OnEnemyHit(World world, EntityLiving causer, List<EventType> usedEventTypes)
+    { base.OnDamage(world, causer, usedEventTypes);  TriggerItemEvents(EventType.ON_ENEMY_HIT, causer, world, usedEventTypes); }
 }

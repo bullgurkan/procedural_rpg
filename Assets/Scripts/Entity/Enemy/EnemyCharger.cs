@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Effect;
 using static EntityLiving;
 
 public class EnemyCharger : Enemy
@@ -65,7 +66,7 @@ public class EnemyCharger : Enemy
     {
         if (collidingEntiy is Character && isTheMovingEntity)
         {
-            actionOnHit.OnActivation(world, this, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null);
+            actionOnHit.OnActivation(world, this, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null, new List<EventType>());
         }
 
     }

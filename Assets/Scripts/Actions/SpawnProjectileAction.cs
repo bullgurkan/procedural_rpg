@@ -18,7 +18,7 @@ public class SpawnProjectileAction : Action
         this.speed = speed;
         this.actionToUseOnProjectileHit = actionToUseOnProjectileHit;
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
         
         Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, caster.CurrentRoom) - caster.PositionInRoom;
@@ -27,7 +27,7 @@ public class SpawnProjectileAction : Action
 
             List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE, TagType.PICKUP };
 
-            world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, caster, tagsToIgnore: tagsToIgnore), caster.CurrentRoom, caster.PositionInRoom + delta * caster.Size.x / delta.Magnitude);
+            world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, caster, usedEventTypes, tagsToIgnore: tagsToIgnore), caster.CurrentRoom, caster.PositionInRoom + delta * caster.Size.x / delta.Magnitude);
         }
         else
         {

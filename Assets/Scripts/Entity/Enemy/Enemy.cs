@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using static Effect;
 
 public abstract class Enemy : EntityLiving
 {
@@ -35,6 +36,6 @@ public abstract class Enemy : EntityLiving
 
     public abstract void EnemyTick(World world);
 
-    protected override void OnDeath(World world, EntityLiving causer) { base.OnDeath(world, causer); world.QueueEntityRemoval(Id); }
+    protected override void OnDeath(World world, EntityLiving causer, List<EventType> usedEventTypes) { base.OnDeath(world, causer, usedEventTypes); causer.OnEnemyKill(world, this, usedEventTypes); world.QueueEntityRemoval(Id); }
 
 }

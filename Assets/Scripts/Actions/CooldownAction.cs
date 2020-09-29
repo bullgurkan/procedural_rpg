@@ -16,23 +16,24 @@ public class CooldownAction : Action
         this.cooldown = cooldown;
         effect.actions.Add(EventType.ON_TICK, new CooldownHelperAction());
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
-        if (effectData.ContainsKey(EffectData.COOLDOWN))
+
+        if (source.effectData.ContainsKey(EffectData.COOLDOWN))
         {
-            if ((int)effectData[EffectData.COOLDOWN] == 0)
+            if ((int)source.effectData[EffectData.COOLDOWN] == 0)
             {
                 if(caster.GetStat(Stat.ATTACK_SPEED) > 0)
                 {
-                    action.OnActivation(world, caster, reciver, room, positionInRoom, effectData);
+                    action.OnActivation(world, caster, reciver, room, positionInRoom, source, usedEventTypes);
                     if (cooldown > 0)
                     {
-                        effectData[EffectData.COOLDOWN] = cooldown;
+                        source.effectData[EffectData.COOLDOWN] = cooldown;
                     }
                     else
                     {
                         if (caster.GetStat(Stat.ATTACK_SPEED) > 0)
-                            effectData[EffectData.COOLDOWN] = 200/ caster.GetStat(Stat.ATTACK_SPEED);
+                            source.effectData[EffectData.COOLDOWN] = 200/ caster.GetStat(Stat.ATTACK_SPEED);
                     }
                 }
                 
@@ -41,8 +42,8 @@ public class CooldownAction : Action
         }
         else
         {
-            effectData.Add(EffectData.COOLDOWN, 0);
-            OnActivation(world, caster, reciver, room, positionInRoom, effectData);
+            source.effectData.Add(EffectData.COOLDOWN, 0);
+            OnActivation(world, caster, reciver, room, positionInRoom, source, usedEventTypes);
         }   
         
     }

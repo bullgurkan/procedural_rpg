@@ -33,7 +33,7 @@ public class RoomLogicTrapAmbush : RoomLogic
 
             foreach(Enemy enemy in enemies)
             {
-                Effect effect = new Effect();
+                Effect effect = new Effect(null);
                 effect.actions.Add(EventType.ON_DEATH, new UnlockRoomAction(this));
                 enemy.AddEffect(effect);
                 world.AddEntity(enemy, room.RoomPosition, enemy.PositionInRoom);

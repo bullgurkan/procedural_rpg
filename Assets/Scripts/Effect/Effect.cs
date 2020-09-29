@@ -10,6 +10,7 @@ public class Effect
     public Dictionary<EventType, Action> actions;
     public Dictionary<Stat, int> stats;
     public Dictionary<EffectData, object> effectData;
+    public Effect source;
 
     public enum EventType
     {
@@ -21,16 +22,31 @@ public class Effect
         COOLDOWN, DURATION_LEFT
     }
 
+    public Effect(Effect source)
+    {
+        actions = new Dictionary<EventType, Action>();
+        stats = new Dictionary<Stat, int>();
+        effectData = new Dictionary<EffectData, object>();
+        this.source = source;
+
+    }
+
     public Effect()
     {
         actions = new Dictionary<EventType, Action>();
         stats = new Dictionary<Stat, int>();
         effectData = new Dictionary<EffectData, object>();
+        source = this;
     }
-    public void OnEvent(EventType eventType, World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom)
+
+    public void OnEvent(EventType eventType, World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
-        if(actions.ContainsKey(eventType))
-            actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, effectData);
+        if (actions.ContainsKey(eventType) && !usedEventTypes.Contains(eventType))
+        {
+            usedEventTypes.Add(eventType);
+            actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, this, usedEventTypes);
+        }
+           
     }
 
     public void ModifyStats(EntityLiving entity)

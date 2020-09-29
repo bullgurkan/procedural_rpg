@@ -15,11 +15,9 @@ public class DamageAction : Action
         this.damageScaling = damageScaling;
         this.resitance = resitance;
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<EffectData, Object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
-
-        
-        caster.Heal(world, reciver, reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance) * caster.GetStat(Stat.LIFESTEAL)/100);
+        caster.Heal(world, reciver, reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance, usedEventTypes) * caster.GetStat(Stat.LIFESTEAL)/100, usedEventTypes);
     }
 
     public override string ToString() => $"DamageAction(Scaling:{damageScaling}, AttackType:{resitance})";

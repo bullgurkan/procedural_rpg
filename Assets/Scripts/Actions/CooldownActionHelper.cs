@@ -8,15 +8,13 @@ using static Effect;
 
 public class CooldownHelperAction : Action
 {
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Dictionary<Effect.EffectData, object> effectData)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
     {
-        if (effectData.ContainsKey(EffectData.COOLDOWN))
+        if (source.effectData.ContainsKey(EffectData.COOLDOWN))
         {
-            if ((int)effectData[EffectData.COOLDOWN] > 0)
-                effectData[EffectData.COOLDOWN] = (int)effectData[EffectData.COOLDOWN] - 1;
-
+            if ((int)source.effectData[EffectData.COOLDOWN] > 0)
+                source.effectData[EffectData.COOLDOWN] = (int)source.effectData[EffectData.COOLDOWN] - 1;
         }
-
     }
 
     public override string ToString() => "CooldownHelperAction";
