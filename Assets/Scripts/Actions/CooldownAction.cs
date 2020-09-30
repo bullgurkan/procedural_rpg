@@ -10,13 +10,13 @@ public class CooldownAction : Action
 {
     Action action;
     int cooldown;
-    public CooldownAction(Action action, Effect effect, int cooldown = -1)
+    public CooldownAction(Effect source, Action action, Effect effect, int cooldown = -1) : base(source)
     {
         this.action = action;
         this.cooldown = cooldown;
-        effect.actions.Add(EventType.ON_TICK, new CooldownHelperAction());
+        effect.actions.Add(EventType.ON_TICK, new CooldownHelperAction(source));
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
 
         if (source.effectData.ContainsKey(EffectData.COOLDOWN))
@@ -25,7 +25,7 @@ public class CooldownAction : Action
             {
                 if(caster.GetStat(Stat.ATTACK_SPEED) > 0)
                 {
-                    action.OnActivation(world, caster, reciver, room, positionInRoom, source, usedEventTypes);
+                    action.OnActivation(world, caster, reciver, room, positionInRoom, usedEventTypes);
                     if (cooldown > 0)
                     {
                         source.effectData[EffectData.COOLDOWN] = cooldown;
@@ -43,7 +43,7 @@ public class CooldownAction : Action
         else
         {
             source.effectData.Add(EffectData.COOLDOWN, 0);
-            OnActivation(world, caster, reciver, room, positionInRoom, source, usedEventTypes);
+            OnActivation(world, caster, reciver, room, positionInRoom, usedEventTypes);
         }   
         
     }

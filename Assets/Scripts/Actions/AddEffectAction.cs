@@ -7,10 +7,14 @@ using static Effect;
 
 public class AddEffectAction : Action
 {
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
+    Effect effectToApply;
+    public AddEffectAction(Effect source, Effect effectToApply) : base(source)
     {
-        Effect effect = new Effect(source);
-        reciver.AddEffect(effect);
+        this.effectToApply = effectToApply;
+    }
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
+    {
+        reciver.AddEffect(effectToApply);
     }
 
     public override string ToString()

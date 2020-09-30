@@ -44,7 +44,7 @@ public class Effect
         if (actions.ContainsKey(eventType) && !usedEventTypes.Contains(eventType))
         {
             usedEventTypes.Add(eventType);
-            actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, this, usedEventTypes);
+            actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, usedEventTypes);
         }
            
     }

@@ -17,7 +17,7 @@ public class EnemyCharger : Enemy
     DamageAction actionOnHit;
     public EnemyCharger(Position pos, int spawnTime, int difficulty) : base(pos, spawnTime, "enemy_charger", "Charger", new Position(400, 400), GenerateBaseStats(difficulty))
     {
-        actionOnHit = new DamageAction(Stat.ATTACK_POWER, Stat.ARMOR);
+        actionOnHit = new DamageAction(null, Stat.ATTACK_POWER, Stat.ARMOR);
 
         chargeCooldownMax = (int)(50/Math.Sqrt(difficulty));
 
@@ -66,7 +66,7 @@ public class EnemyCharger : Enemy
     {
         if (collidingEntiy is Character && isTheMovingEntity)
         {
-            actionOnHit.OnActivation(world, this, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null, new List<EventType>());
+            actionOnHit.OnActivation(world, this, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, new List<EventType>());
         }
 
     }

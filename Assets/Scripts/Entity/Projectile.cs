@@ -31,7 +31,7 @@ public class Projectile : Entity, ITickable
 
         if (collidingEntiy is EntityLiving)
         {
-            actionToUseOnHit.OnActivation(world, caster, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, null, usedEventTypes);
+            actionToUseOnHit.OnActivation(world, caster, collidingEntiy as EntityLiving, collidingEntiy.CurrentRoom, collidingEntiy.PositionInRoom, usedEventTypes);
             if (collidingEntiy is Enemy)
                 caster.OnEnemyHit(world, collidingEntiy as EntityLiving, usedEventTypes);
         }

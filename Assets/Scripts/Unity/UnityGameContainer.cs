@@ -36,7 +36,7 @@ class UnityGameContainer : MonoBehaviour
         world = new World(10, 10, 7600, worldRenerer, players, new WorldGenerator(1, 760, 3, "wall", "floor", 40, 4));
 
         Item item = new Item(Character.Slot.WEAPON);
-        item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(new SpawnProjectileAction(new Position(100, 100), 100, new DamageAction(EntityLiving.Stat.ATTACK_POWER, EntityLiving.Stat.ARMOR)), item));
+        item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(item, new SpawnProjectileAction(item, new Position(100, 100), 100, new DamageAction(item, EntityLiving.Stat.ATTACK_POWER, EntityLiving.Stat.ARMOR)), item));
         item.stats.Add(EntityLiving.Stat.ATTACK_POWER, 10);
         item.stats.Add(EntityLiving.Stat.LIFESTEAL, 50);
 

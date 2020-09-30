@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 using static Effect;
 using static EntityLiving;
 
-public class UnlockRoomAction : Action
+public class HealAction : Action
 {
 
-    RoomLogicTrapAmbush ambushLogic;
-    public UnlockRoomAction(RoomLogicTrapAmbush ambushLogic) : base(null)
+    Stat healingScaling;
+    public HealAction(Effect source, Stat healingScaling) : base(source)
     {
-        this.ambushLogic = ambushLogic;
+        this.healingScaling = healingScaling;
     }
     public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
-        ambushLogic.EntityDied(world, caster as Enemy);
+        caster.Heal(world, reciver, caster.GetStat(healingScaling), usedEventTypes);
     }
 
-    public override string ToString() => $"UnlockRoomAction(LinkedRoomLogicToUnlock:{ambushLogic})";
+    public override string ToString() => $"HealAction(Scaling:{healingScaling})";
 }
 

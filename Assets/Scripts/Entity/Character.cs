@@ -38,6 +38,7 @@ public class Character : EntityLiving
 
     public Item ChangeEquipment(Item item)
     {
+        UnityEngine.Debug.Log(item);
         Item prevItem = null;
         if (items.ContainsKey(item.Slot))
             prevItem = items[item.Slot];
@@ -85,9 +86,11 @@ public class Character : EntityLiving
 
     private void TriggerItemEvents(EventType e, EntityLiving causer, World world, List<EventType> usedEventTypes)
     {
+        UnityEngine.Debug.Log(items.Values);
         foreach (Item item in items.Values)
         {
             item.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom, usedEventTypes);
+            UnityEngine.Debug.Log(items.Values);
         }
     }
 
@@ -106,7 +109,6 @@ public class Character : EntityLiving
         if (itemPickup != null)
         {
             Item itemToPickUp = itemPickup.PickupItem(world);
-            UnityEngine.Debug.Log(itemToPickUp);
             Item itemToDrop = ChangeEquipment(itemToPickUp);
             if (itemToDrop != null)
                 world.AddEntity(new ItemPickup(itemToDrop), itemPickup.CurrentRoom, itemPickup.PositionInRoom);

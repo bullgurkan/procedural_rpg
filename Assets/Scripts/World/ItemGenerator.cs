@@ -57,13 +57,6 @@ public class ItemGenerator
         return item;
     }
 
-    private void GiveRandomStats(Item item, int amount)
-    {
-        for (int i = 0; i < amount; i++)
-        {
-            AddStat(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), random.Next(1, powerLevel));
-        }
-    }
 
     private void GiveRandomDefensiveStats(Item item, int amount, int powerBudget)
     {
@@ -119,17 +112,17 @@ public class ItemGenerator
         if (eventTypeSafe == EventType.ON_TICK)
         {
             int cooldown = random.Next(1, 1000);
-            itemEffectBudget += itemEffectBudget * (cooldown - 500) / 100;
-            action = new CooldownAction(GenerateRandomAction(0, ref itemEffectBudget), item, cooldown);
+            itemEffectBudget += itemEffectBudget * (cooldown - 500) / 500;
+            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget), item, cooldown);
         }
 
         else if (eventTypeSafe == EventType.ON_ACTIVATION)
-            action = new CooldownAction(GenerateRandomAction(0, ref itemEffectBudget), item);
+            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget), item);
         else
-            action = GenerateRandomAction(0, ref itemEffectBudget);
+            action = GenerateRandomAction(item, 0, ref itemEffectBudget);
         if (item.actions.ContainsKey(eventTypeSafe))
         {
-            item.actions[eventTypeSafe] = new MultiAction(action, item.actions[eventTypeSafe]);
+            item.actions[eventTypeSafe] = new MultiAction(item, action, item.actions[eventTypeSafe]);
         }
         else
             item.actions.Add(eventTypeSafe, action);
@@ -138,36 +131,51 @@ public class ItemGenerator
         return itemEffectBudget;
     }
 
-    private Action GenerateRandomAction(int depth, ref int itemActionBudget)
+    private Action GenerateRandomAction(Item item, int depth, ref int itemActionBudget, int effectMultiplier = 1)
     {
         switch (random.Next(10))
         {
             case 0:
-                if (depth > 0)
+                if(effectMultiplier == 1)
                 {
-                    if (random.Next(4) == 0)
-                        return new DamageAction(offensiveStats[random.Next(offensiveStats.Count)], resistanceStats[random.Next(resistanceStats.Count)]);
-                    else
-                        return new DamageAction(Stat.ATTACK_POWER, resistanceStats[random.Next(resistanceStats.Count)]);
+                    return new HealAction(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length));
                 }
                 else
                 {
-                    goto case 1;
+                    if (random.Next(4) == 0)
+                        return new DamageAction(item, offensiveStats[random.Next(offensiveStats.Count)], resistanceStats[random.Next(resistanceStats.Count)]);
+                    else
+                        return new DamageAction(item, Stat.ATTACK_POWER, resistanceStats[random.Next(resistanceStats.Count)]);
                 }
+                    
+
             case 1:
                 if (depth < maxDepth)
                 {
-                    itemActionBudget -= itemActionBudget / 10;
-                    return new SpawnProjectileAction(Position.one * random.Next(100, (100 + powerLevel * 5) * 2) * 2, random.Next(1, powerLevel) * 10, GenerateRandomAction(depth + 1, ref itemActionBudget));
+                    int speed = random.Next(1, itemActionBudget > 200 ? 200 : itemActionBudget);
+                    itemActionBudget -= speed;
+                    int size = random.Next(100, (100 + itemActionBudget > 200 ? 200 : itemActionBudget) * 2) * 2;
+                    itemActionBudget -= size/100;
+                    return new SpawnProjectileAction(item, Position.one * size, speed * 10, GenerateRandomAction(item, depth + 1, ref itemActionBudget, effectMultiplier));
                 }
-
                 goto case 0;
+            case 2:
+                {
+                    Effect effect = new Effect(item);
+                    int statPower = random.Next(1, itemActionBudget);
+                    itemActionBudget -= statPower;
+                    AddStat(effect, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), -statPower);
+
+                    return new AddEffectAction(item, effect);
+                }
+                
+
             default:
                 goto case 0;
         }
     }
 
-    private void AddStat(Item item, Stat stat, int amount)
+    private void AddStat(Effect item, Stat stat, int amount)
     {
         if (item.stats.ContainsKey(stat))
             item.stats[stat] += amount;

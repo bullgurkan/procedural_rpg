@@ -12,13 +12,13 @@ public class SpawnProjectileAction : Action
     Position size;
     int speed;
     Action actionToUseOnProjectileHit;
-    public SpawnProjectileAction(Position size, int speed, Action actionToUseOnProjectileHit)
+    public SpawnProjectileAction(Effect source, Position size, int speed, Action actionToUseOnProjectileHit): base(source)
     {
         this.size = size;
         this.speed = speed;
         this.actionToUseOnProjectileHit = actionToUseOnProjectileHit;
     }
-    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes)
+    public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
         
         Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, caster.CurrentRoom) - caster.PositionInRoom;

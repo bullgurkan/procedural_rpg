@@ -7,7 +7,13 @@ using static Effect;
 
 public abstract class Action
 {
-    public abstract void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, Effect source, List<EventType> usedEventTypes);
+    protected Effect source;
+
+    public Action(Effect source)
+    {
+        this.source = source;
+    }
+    public abstract void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes);
     public abstract override string ToString();
 }
 

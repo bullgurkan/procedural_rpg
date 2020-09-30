@@ -1,0 +1,18 @@
+* = doing;
+
+spawning enemies should have hitbox
+*debuff action
+projectile types:
+(boomerang, 
+lockOn,
+rotating)
+enemy types
+more room types
+room cosmetics and decoration
+onhit numbers
+healthbar
+item stats and action in game view
+fix OnTick and OnDeath so that they can spawn projectiles
+save player state to disk
+mobile support
+multiplayer
