@@ -44,12 +44,12 @@ public class World
 
     public void Tick()
     {
-        for (int i = 0; i < tickables.Count;i++)
+        for (int i = 0; i < tickables.Count; i++)
         {
             tickables[i].Tick(this);
         }
 
-        if(entitiesToRemove.Count > 0)
+        if (entitiesToRemove.Count > 0)
         {
             foreach (var id in entitiesToRemove)
             {
@@ -57,13 +57,13 @@ public class World
             }
             entitiesToRemove.Clear();
         }
-        
+
     }
 
     public void AddEntity(Entity entity, Position roomPos, Position posInRoom, bool shouldCameraFollow = false)
     {
         entity.Id = GenerateId();
-        
+
         entities.Add(entity.Id, entity);
         if (entity is ITickable)
             tickables.Add((ITickable)entity);
@@ -78,10 +78,10 @@ public class World
         WorldRenderer.AddEntity(entity, this, shouldCameraFollow);
     }
 
-    public void QueueEntityRemoval(int id) 
+    public void QueueEntityRemoval(int id)
     {
         if (!entitiesToRemove.Contains(id))
-        entitiesToRemove.Add(id);
+            entitiesToRemove.Add(id);
     }
 
     private void RemoveEntity(int id)
@@ -105,76 +105,113 @@ public class World
 
         return i;
     }
-    /*
 
-    public Entity[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
+    public Enemy FindEnemy(Position roomPosition, Position pos, int maxRange)
     {
-        if (distance % 2 == 1)
-            throw new Exception("distance has to be dividable by 2");
-
-        List<Entity> colldingEntities = new List<Entity>();
-
-        Position destination = movingObject.PositionInRoom + direction * distance;
-        Position normal = Position.RightNormal(destination);
-
-
-        int shortestDistancesFromLine = int.MaxValue;
-        int longestDistancesFromLine = int.MinValue;
-        for (int x = -1; x < 2; x += 2)
+        double maxMag = 0;
+        Enemy enemy = null;
+        foreach (int id in GetRoom(roomPosition).entityIds)
         {
-            for (int y = -1; y < 2; y += 2)
+            Entity entity = entities[id];
+            double mag = (entity.PositionInRoom - pos).Magnitude;
+            if (mag > maxMag && mag < maxRange && entity is Enemy)
             {
-                int distanceFormLine = Position.Dot(movingObject.PositionInRoom + new Position(x * movingObject.Size.x, y * movingObject.Size.y), normal);
-                if (distanceFormLine < shortestDistancesFromLine)
-                {
-                    shortestDistancesFromLine = distanceFormLine;
-                }
-
-                if (distanceFormLine > longestDistancesFromLine)
-                {
-                    longestDistancesFromLine = distanceFormLine;
-                }
-
+                maxMag = mag;
+                enemy = entity as Enemy;
             }
         }
 
-
-
-        Position posBetweenOriginAndDest = movingObject.PositionInRoom + (direction * distance) / 2;
-        Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + movingObject.Size;
-
-
-        Position dir = Position.zero;
-        for (int x = -1; x < 2; x++)
+        foreach (Position direciton in Position.directions)
         {
-            for (int y = -1; y < 2; y++)
+            Position room2 = roomPosition + direciton;
+            if (GetRoom(room2) != null)
             {
-                dir.x = x;
-                dir.y = y;
-                Position room2 = movingObject.CurrentRoom + dir;
-                if (GetRoom(room2) != null)
+                foreach (int id in GetRoom(room2).entityIds)
                 {
-                    foreach (Entity entity in GetRoom(room2).entities)
+                    Entity entity = entities[id];
+                    double mag = (ConvertPositionBetweenRooms(entity.PositionInRoom, room2, roomPosition) - pos).Magnitude;
+                    if (mag > maxMag && mag < maxRange && entity is Enemy)
                     {
-                        Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, movingObject.CurrentRoom);
-                        if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
-                        {
-                            if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
-                                colldingEntities.Add(entity);
-                        }
-
-
+                        maxMag = mag;
+                        enemy = entity as Enemy;
                     }
                 }
-
             }
         }
 
-
-        return colldingEntities.ToArray();
+        return null;
     }
 
-    */
+    /*
+
+public Entity[] BoxCastinLine(int entityToIgnoreId, Entity movingObject, Position direction, int distance)
+{
+   if (distance % 2 == 1)
+       throw new Exception("distance has to be dividable by 2");
+
+   List<Entity> colldingEntities = new List<Entity>();
+
+   Position destination = movingObject.PositionInRoom + direction * distance;
+   Position normal = Position.RightNormal(destination);
+
+
+   int shortestDistancesFromLine = int.MaxValue;
+   int longestDistancesFromLine = int.MinValue;
+   for (int x = -1; x < 2; x += 2)
+   {
+       for (int y = -1; y < 2; y += 2)
+       {
+           int distanceFormLine = Position.Dot(movingObject.PositionInRoom + new Position(x * movingObject.Size.x, y * movingObject.Size.y), normal);
+           if (distanceFormLine < shortestDistancesFromLine)
+           {
+               shortestDistancesFromLine = distanceFormLine;
+           }
+
+           if (distanceFormLine > longestDistancesFromLine)
+           {
+               longestDistancesFromLine = distanceFormLine;
+           }
+
+       }
+   }
+
+
+
+   Position posBetweenOriginAndDest = movingObject.PositionInRoom + (direction * distance) / 2;
+   Position sizeOfOriginToDestination = new Position(Math.Abs(direction.x), Math.Abs(direction.y)) * distance + movingObject.Size;
+
+
+   Position dir = Position.zero;
+   for (int x = -1; x < 2; x++)
+   {
+       for (int y = -1; y < 2; y++)
+       {
+           dir.x = x;
+           dir.y = y;
+           Position room2 = movingObject.CurrentRoom + dir;
+           if (GetRoom(room2) != null)
+           {
+               foreach (Entity entity in GetRoom(room2).entities)
+               {
+                   Position convertedEntityPos = ConvertPositionBetweenRooms(entity.PositionInRoom, room2, movingObject.CurrentRoom);
+                   if (entity.Id != entityToIgnoreId && IsColliding(posBetweenOriginAndDest, sizeOfOriginToDestination, convertedEntityPos, entity.Size))
+                   {
+                       if (IsDistanceToLineLongerThan(convertedEntityPos, entity.Size, normal, shortestDistancesFromLine, longestDistancesFromLine))
+                           colldingEntities.Add(entity);
+                   }
+
+
+               }
+           }
+
+       }
+   }
+
+
+   return colldingEntities.ToArray();
+}
+
+*/
 
     public Entity BoxCast(Position roomPosition, Position pos, Position size)
     {

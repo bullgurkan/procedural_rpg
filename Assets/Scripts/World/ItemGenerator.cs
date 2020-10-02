@@ -3,6 +3,7 @@ using static EntityLiving;
 using static Character;
 using System.Collections.Generic;
 using static Effect;
+using Unity.Collections;
 
 public class ItemGenerator
 {
@@ -105,7 +106,7 @@ public class ItemGenerator
             AddStat(item, offensiveStats[random.Next(offensiveStats.Count)], random.Next(1, power));
         }
     }
-    private int GiveRandomAction(Item item, EventType? eventType, int itemEffectBudget)
+    private int GiveRandomAction(Effect item, EventType? eventType, int itemEffectBudget, bool isPositive = true, bool isAffectingGoodEntity = true)
     {
         EventType eventTypeSafe = eventType ?? (EventType)random.Next(1, Enum.GetValues(typeof(EventType)).Length);
         Action action = null;
@@ -113,13 +114,13 @@ public class ItemGenerator
         {
             int cooldown = random.Next(1, 1000);
             itemEffectBudget += itemEffectBudget * (cooldown - 500) / 500;
-            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget), item, cooldown);
+            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget, isPositive, isAffectingGoodEntity), item, cooldown);
         }
 
         else if (eventTypeSafe == EventType.ON_ACTIVATION)
-            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget), item);
+            action = new CooldownAction(item, GenerateRandomAction(item, 0, ref itemEffectBudget, isPositive, isAffectingGoodEntity), item);
         else
-            action = GenerateRandomAction(item, 0, ref itemEffectBudget);
+            action = GenerateRandomAction(item, 0, ref itemEffectBudget, isPositive, isAffectingGoodEntity);
         if (item.actions.ContainsKey(eventTypeSafe))
         {
             item.actions[eventTypeSafe] = new MultiAction(item, action, item.actions[eventTypeSafe]);
@@ -131,44 +132,50 @@ public class ItemGenerator
         return itemEffectBudget;
     }
 
-    private Action GenerateRandomAction(Item item, int depth, ref int itemActionBudget, int effectMultiplier = 1)
+    private Action GenerateRandomAction(Effect item, int depth, ref int itemActionBudget, bool isPositive, bool isAffectingGoodEntity)
     {
-        switch (random.Next(10))
+        switch (random.Next(5))
         {
             case 0:
-                if(effectMultiplier == 1)
-                {
-                    return new HealAction(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length));
-                }
+                itemActionBudget -= powerLevel / 2 * (isPositive ? 1 : -1);
+                if (random.Next(4) == 0)
+                    return new DamageAction(item, offensiveStats[random.Next(offensiveStats.Count)], resistanceStats[random.Next(resistanceStats.Count)], !isAffectingGoodEntity);
                 else
-                {
-                    if (random.Next(4) == 0)
-                        return new DamageAction(item, offensiveStats[random.Next(offensiveStats.Count)], resistanceStats[random.Next(resistanceStats.Count)]);
-                    else
-                        return new DamageAction(item, Stat.ATTACK_POWER, resistanceStats[random.Next(resistanceStats.Count)]);
-                }
-                    
-
+                    return new DamageAction(item, Stat.ATTACK_POWER, resistanceStats[random.Next(resistanceStats.Count)], !isAffectingGoodEntity);
             case 1:
                 if (depth < maxDepth)
                 {
+                    itemActionBudget += itemActionBudget/2 < 300 ? 300 : itemActionBudget/2;
                     int speed = random.Next(1, itemActionBudget > 200 ? 200 : itemActionBudget);
                     itemActionBudget -= speed;
                     int size = random.Next(100, (100 + itemActionBudget > 200 ? 200 : itemActionBudget) * 2) * 2;
-                    itemActionBudget -= size/100;
-                    return new SpawnProjectileAction(item, Position.one * size, speed * 10, GenerateRandomAction(item, depth + 1, ref itemActionBudget, effectMultiplier));
+                    itemActionBudget -= size / 100;
+                    return new SpawnProjectileAction(item, Position.one * size, speed * 10, GenerateRandomAction(item, depth + 1, ref itemActionBudget, isPositive, !isAffectingGoodEntity));
                 }
                 goto case 0;
             case 2:
                 {
                     Effect effect = new Effect(item);
-                    int statPower = random.Next(1, itemActionBudget);
-                    itemActionBudget -= statPower;
-                    AddStat(effect, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), -statPower);
-
-                    return new AddEffectAction(item, effect);
+                    bool shouldEffectBePositive = random.Next(2) == 0;
+                    if (random.Next(0, 2) == 0)
+                    {
+                        int statPower = random.Next(1, itemActionBudget);
+                        itemActionBudget -= statPower * (shouldEffectBePositive ? 1 : -1);
+                        AddStat(effect, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), statPower * (isAffectingGoodEntity ? 1 : -1) * (shouldEffectBePositive ? 1 : -1));
+                    }
+                    else
+                    {
+                        itemActionBudget = GiveRandomAction(effect, null, itemActionBudget, shouldEffectBePositive, shouldEffectBePositive ? isAffectingGoodEntity : !isAffectingGoodEntity);
+                    }
+                       
+                    return new AddEffectAction(item, effect, shouldEffectBePositive);
                 }
-                
+
+            case 3:
+                itemActionBudget -= powerLevel / 2 * (isPositive ? 1 : -1);
+                return new HealAction(item, (Stat)random.Next(Enum.GetValues(typeof(Stat)).Length), isAffectingGoodEntity);
+            case 4:
+                return new MultiAction(item, GenerateRandomAction(item, depth + 1, ref itemActionBudget, isAffectingGoodEntity, isPositive), GenerateRandomAction(item, depth + 1, ref itemActionBudget, isPositive, isAffectingGoodEntity));
 
             default:
                 goto case 0;

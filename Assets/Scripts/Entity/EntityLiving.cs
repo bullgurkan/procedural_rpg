@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,12 +78,13 @@ public abstract class EntityLiving : Entity, ITickable
     {
         if (amount < 0)
         {
-            
             return -Damage(world, caster, -amount, Stat.LIGHT_RESITANCE, usedEventTypes);
         }
+
         health += amount;
         if (health > GetStat(Stat.MAX_HEALTH))
             health = GetStat(Stat.MAX_HEALTH);
+
         OnHeal(world, caster, usedEventTypes);
         return amount;
     }

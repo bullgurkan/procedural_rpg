@@ -38,7 +38,6 @@ class UnityGameContainer : MonoBehaviour
         Item item = new Item(Character.Slot.WEAPON);
         item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(item, new SpawnProjectileAction(item, new Position(100, 100), 100, new DamageAction(item, EntityLiving.Stat.ATTACK_POWER, EntityLiving.Stat.ARMOR)), item));
         item.stats.Add(EntityLiving.Stat.ATTACK_POWER, 10);
-        item.stats.Add(EntityLiving.Stat.LIFESTEAL, 50);
 
         e.ChangeEquipment(item);
 

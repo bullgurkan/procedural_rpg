@@ -8,18 +8,20 @@ using static Effect;
 public class AddEffectAction : Action
 {
     Effect effectToApply;
-    public AddEffectAction(Effect source, Effect effectToApply) : base(source)
+    bool applyToCaster;
+    public AddEffectAction(Effect source, Effect effectToApply, bool applyToCaster) : base(source)
     {
         this.effectToApply = effectToApply;
+        this.applyToCaster = applyToCaster;
     }
     public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
+        if (applyToCaster)
+            reciver = caster;
         reciver.AddEffect(effectToApply);
     }
 
-    public override string ToString()
-    {
-        throw new NotImplementedException();
-    }
+    public override string ToString() => $"AddEffectAction(EffectToApply:{effectToApply}, ApplyToCaster:{applyToCaster})";
 }
+
 

@@ -80,17 +80,16 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_TICK, world, this, null, CurrentRoom, PositionInRoom, new List<EventType>());
+            item.OnEvent(EventType.ON_TICK, world, this, this, CurrentRoom, PositionInRoom, new List<EventType>());
         }
     }
 
     private void TriggerItemEvents(EventType e, EntityLiving causer, World world, List<EventType> usedEventTypes)
     {
-        UnityEngine.Debug.Log(items.Values);
+
         foreach (Item item in items.Values)
         {
             item.OnEvent(e, world, this, causer, causer.CurrentRoom, causer.PositionInRoom, usedEventTypes);
-            UnityEngine.Debug.Log(items.Values);
         }
     }
 
@@ -98,7 +97,8 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_ACTIVATION, world, this, null, CurrentRoom, activationPos, new List<EventType>());
+            Enemy enemy = world.FindEnemy(CurrentRoom, PositionInRoom, world.RoomSize);
+            item.OnEvent(EventType.ON_ACTIVATION, world, this, enemy ?? (EntityLiving)this, CurrentRoom, activationPos, new List<EventType>());
         }
     }
 
@@ -122,9 +122,19 @@ public class Character : EntityLiving
     { base.OnHeal(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_HEAL, causer, world, usedEventTypes); }
     protected override void OnDeath(World world, EntityLiving causer, List<EventType> usedEventTypes)
     {
+        UnityEngine.Debug.Log("pre " + health);
         base.OnDeath(world, causer, usedEventTypes);
-        UnityEngine.Debug.Log("killed by " + causer);
+
+
         TriggerItemEvents(EventType.ON_DEATH, causer, world, usedEventTypes);
+
+        UnityEngine.Debug.Log("post " + health);
+        if (health < 0)
+        {
+            UnityEngine.Debug.Log("killed by " + causer);
+            world.QueueEntityRemoval(Id);
+        }
+            
     }
     public override void OnEnemyKill(World world, EntityLiving causer, List<EventType> usedEventTypes)
     { base.OnDamage(world, causer, usedEventTypes);  TriggerItemEvents(EventType.ON_ENEMY_KILL, causer, world, usedEventTypes); }

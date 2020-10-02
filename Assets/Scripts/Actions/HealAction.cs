@@ -10,15 +10,19 @@ public class HealAction : Action
 {
 
     Stat healingScaling;
-    public HealAction(Effect source, Stat healingScaling) : base(source)
+    bool healCaster;
+    public HealAction(Effect source, Stat healingScaling, bool healCaster = false) : base(source)
     {
         this.healingScaling = healingScaling;
+        this.healCaster = healCaster;
     }
     public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
-        caster.Heal(world, reciver, caster.GetStat(healingScaling), usedEventTypes);
+        if (healCaster)
+            reciver = caster;
+        reciver.Heal(world, caster, caster.GetStat(healingScaling), usedEventTypes);
     }
 
-    public override string ToString() => $"HealAction(Scaling:{healingScaling})";
+    public override string ToString() => $"HealAction(Scaling:{healingScaling}, HealCaster:{healCaster})";
 }
 

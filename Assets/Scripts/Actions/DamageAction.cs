@@ -10,16 +10,22 @@ public class DamageAction : Action
 {
 
     Stat damageScaling, resitance;
-    public DamageAction(Effect source, Stat damageScaling, Stat resitance): base(source)
+    bool damageCaster;
+    public DamageAction(Effect source, Stat damageScaling, Stat resitance, bool damageCaster = false) : base(source)
     {
         this.damageScaling = damageScaling;
         this.resitance = resitance;
     }
     public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
-        caster.Heal(world, reciver, reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance, usedEventTypes) * caster.GetStat(Stat.LIFESTEAL)/100, usedEventTypes);
+        if (damageCaster)
+            reciver = caster;
+        int lifestealAmount = reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance, usedEventTypes) * caster.GetStat(Stat.LIFESTEAL) / 100;
+        if (lifestealAmount > 0)
+            caster.Heal(world, reciver, lifestealAmount, usedEventTypes);
     }
 
-    public override string ToString() => $"DamageAction(Scaling:{damageScaling}, AttackType:{resitance})";
+    public override string ToString() => $"DamageAction(Scaling:{damageScaling}, AttackType:{resitance}, DamageCaster:{damageCaster})";
+
 }
 
