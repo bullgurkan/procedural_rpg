@@ -14,7 +14,7 @@ public class Effect
 
     public enum EventType
     {
-        ON_ACTIVATION ,ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_DEATH, ON_TICK
+        ON_ACTIVATION, ON_DAMAGE, ON_ENEMY_HIT, ON_HEAL, ON_ENEMY_KILL, ON_DEATH, ON_TICK
     }
 
     public enum EffectData
@@ -46,7 +46,7 @@ public class Effect
             usedEventTypes.Add(eventType);
             actions[eventType].OnActivation(world, caster, reciver, room, positionInRoom, usedEventTypes);
         }
-           
+
     }
 
     public void ModifyStats(EntityLiving entity)
@@ -60,26 +60,39 @@ public class Effect
 
     public override string ToString()
     {
-        string s = "Stats:(";
-        int i = 0;
-        foreach (var stat in stats)
-        {
-            i++;
-            s += stat.Key + ":" + stat.Value;
-            if (i < stats.Count)
-                s += ",";
-        }
-        s += ")";
+        string s = "Effect(";
 
-        s += "Actions:(";
-        i = 0;
-        foreach (var action in actions)
+        if(stats.Count > 0)
         {
-            i++;
-            s += action.Key + ":" + action.Value;
-            if (i < actions.Count)
-                s += ",";
+            s += "Stats:{";
+            int i = 0;
+            foreach (var stat in stats)
+            {
+                i++;
+                s += stat.Key + ":" + stat.Value;
+                if (i < stats.Count)
+                    s += ",";
+            }
+            s += "}";
         }
+       
+        if(actions.Count > 0)
+        {
+            if (stats.Count > 0)
+                s += ", ";
+            s += "Actions:{";
+            int i = 0;
+            foreach (var action in actions)
+            {
+                i++;
+                s += action.Key + ":" + action.Value;
+                if (i < actions.Count)
+                    s += ",";
+            }
+            s += "}";
+        }
+        
+
         s += ")";
 
         return s;

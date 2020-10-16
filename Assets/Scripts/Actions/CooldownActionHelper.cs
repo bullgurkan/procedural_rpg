@@ -21,6 +21,6 @@ public class CooldownHelperAction : Action
         }
     }
 
-    public override string ToString() => "CooldownHelperAction";
+    public override string ToString() => "CooldownHelperAction()";
 }
 

@@ -33,24 +33,25 @@ public class Character : EntityLiving
         baseStats[Stat.ATTACK_POWER] = 1;
         baseStats[Stat.MAX_HEALTH] = 10;
         baseStats[Stat.ATTACK_SPEED] = 5;
+        baseStats[Stat.MOVEMENT_SPEED] = 20;
         return baseStats;
     }
 
-    public Item ChangeEquipment(Item item)
+    public Item ChangeEquipment(Item item, WorldRenderer worldRenderer)
     {
         UnityEngine.Debug.Log(item);
         Item prevItem = null;
         if (items.ContainsKey(item.Slot))
             prevItem = items[item.Slot];
         items[item.Slot] = item;
-        RecalculateStats();
+        RecalculateStats(worldRenderer);
         return prevItem;
     }
 
-    public override void RecalculateStats()
+    public override void RecalculateStats(WorldRenderer worldRenderer)
     {
 
-        base.RecalculateStats();
+        base.RecalculateStats(worldRenderer);
 
         int prevMaxHealth = GetStat(Stat.MAX_HEALTH);
 
@@ -61,6 +62,8 @@ public class Character : EntityLiving
         }
 
         health += GetStat(Stat.MAX_HEALTH) - prevMaxHealth;
+
+        worldRenderer.UpdatePlayerStatDisplay(this);
     }
     public override void OnRoomChange(World world)
     {
@@ -80,7 +83,8 @@ public class Character : EntityLiving
     {
         foreach (Item item in items.Values)
         {
-            item.OnEvent(EventType.ON_TICK, world, this, this, CurrentRoom, PositionInRoom, new List<EventType>());
+            Enemy enemy = world.FindEnemy(CurrentRoom, PositionInRoom, world.RoomSize);
+            item.OnEvent(EventType.ON_TICK, world, this, enemy, CurrentRoom, enemy?.PositionInRoom ?? Position.zero, new List<EventType>());
         }
     }
 
@@ -98,10 +102,23 @@ public class Character : EntityLiving
         foreach (Item item in items.Values)
         {
             Enemy enemy = world.FindEnemy(CurrentRoom, PositionInRoom, world.RoomSize);
-            item.OnEvent(EventType.ON_ACTIVATION, world, this, enemy ?? (EntityLiving)this, CurrentRoom, activationPos, new List<EventType>());
+            item.OnEvent(EventType.ON_ACTIVATION, world, this, enemy, CurrentRoom, activationPos, new List<EventType>());
         }
     }
 
+    public void OpenItemCompareOverlay(World world)
+    {
+        ItemPickup itemPickup = (ItemPickup)world.BoxCastAll(CurrentRoom, PositionInRoom, Size).Find(x => x is ItemPickup);
+
+        if (itemPickup != null)
+        {
+            Item itemToLookAt = itemPickup.PeekAtItem();
+            items.TryGetValue(itemToLookAt.Slot, out Item currentItemInSlot);
+            
+            world.WorldRenderer.AddItemComparisonOverlay(currentItemInSlot, itemToLookAt, world);
+        }
+
+    }
     public void PickUpItem(World world)
     {
         ItemPickup itemPickup = (ItemPickup)world.BoxCastAll(CurrentRoom, PositionInRoom, Size).Find(x => x is ItemPickup);
@@ -109,7 +126,7 @@ public class Character : EntityLiving
         if (itemPickup != null)
         {
             Item itemToPickUp = itemPickup.PickupItem(world);
-            Item itemToDrop = ChangeEquipment(itemToPickUp);
+            Item itemToDrop = ChangeEquipment(itemToPickUp, world.WorldRenderer);
             if (itemToDrop != null)
                 world.AddEntity(new ItemPickup(itemToDrop), itemPickup.CurrentRoom, itemPickup.PositionInRoom);
         }
@@ -117,18 +134,15 @@ public class Character : EntityLiving
     }
 
     protected override void OnDamage(World world, EntityLiving causer, List<EventType> usedEventTypes)
-    { base.OnDamage(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_DAMAGE, causer, world, usedEventTypes); }
+    { base.OnDamage(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_DAMAGE, causer, world, usedEventTypes); world.WorldRenderer.UpdateHealthBar(this); }
     protected override void OnHeal(World world, EntityLiving causer, List<EventType> usedEventTypes)
-    { base.OnHeal(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_HEAL, causer, world, usedEventTypes); }
+    { base.OnHeal(world, causer, usedEventTypes); TriggerItemEvents(EventType.ON_HEAL, causer, world, usedEventTypes); world.WorldRenderer.UpdateHealthBar(this); }
     protected override void OnDeath(World world, EntityLiving causer, List<EventType> usedEventTypes)
     {
-        UnityEngine.Debug.Log("pre " + health);
         base.OnDeath(world, causer, usedEventTypes);
 
 
         TriggerItemEvents(EventType.ON_DEATH, causer, world, usedEventTypes);
-
-        UnityEngine.Debug.Log("post " + health);
         if (health < 0)
         {
             UnityEngine.Debug.Log("killed by " + causer);

@@ -1,7 +1,7 @@
 * = doing;
+// = done;
 
 spawning enemies should have hitbox
-*debuff action
 projectile types:
 (boomerang, 
 lockOn,
@@ -9,10 +9,13 @@ rotating)
 enemy types
 more room types
 room cosmetics and decoration
-onhit numbers
+onHit numbers
 healthbar
-item stats and action in game view
-fix OnTick and OnDeath so that they can spawn projectiles
+item stats and actions in game view
 save player state to disk
 mobile support
 multiplayer
+
+
+//debuff action
+//fix OnTick and OnDeath so that they can spawn projectiles// (now targets the closest enemy (if none exits does not do anything))

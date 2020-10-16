@@ -11,6 +11,7 @@ public abstract class EntityLiving : Entity, ITickable
     private Dictionary<Stat, int> stats;
     protected Dictionary<Stat, int> baseStats;
     protected int health;
+    public int Health { get { return health; } }
     List<Effect> effects;
 
     public EntityLiving(Position size, string spriteId, string name, Dictionary<Stat, int> baseStats, Position? renderSize = null, TagType tag = TagType.ENEMY) : base(size, renderSize, spriteId, name, tag: tag)
@@ -47,18 +48,18 @@ public abstract class EntityLiving : Entity, ITickable
         return postMitigationDamage;
     }
 
-    public void AddEffect(Effect effect)
+    public void AddEffect(Effect effect, WorldRenderer worldRenderer)
     {
         effects.Add(effect);
         if(effects.Find(x => x.source == effect.source) == null)
         {
-            RecalculateStats();
+            RecalculateStats(worldRenderer);
             OnStatChange();
         }
         
     }
 
-    public virtual void RecalculateStats()
+    public virtual void RecalculateStats(WorldRenderer worldRenderer)
     {
         int prevMaxHealth = stats[Stat.MAX_HEALTH];
         foreach (var stat in baseStats.Keys)

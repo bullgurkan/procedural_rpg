@@ -81,7 +81,7 @@ public class EnemyCharger : Enemy
         }
         baseStats[Stat.MAX_HEALTH] = difficulty * difficulty;
         baseStats[Stat.ATTACK_POWER] = 2 * difficulty;
-        baseStats[Stat.MOVEMENT_SPEED] = (int)(40 * Math.Sqrt(difficulty) / accuracy);
+        baseStats[Stat.MOVEMENT_SPEED] = (int)(20 * Math.Sqrt(difficulty) / accuracy);
 
         return baseStats;
     }

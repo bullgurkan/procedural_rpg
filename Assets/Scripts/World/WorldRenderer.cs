@@ -13,6 +13,12 @@ public abstract class WorldRenderer
     public abstract void UpdateEntitySprite(Entity entity);
     public abstract void ClearWorld();
 
+
+    //Gui
+    public abstract void UpdateHealthBar(Character player);
+    public abstract void UpdatePlayerStatDisplay(Character player);
+    public abstract void AddItemComparisonOverlay(Item item1, Item item2, World world);
+
     public enum RenderPriority
     {
         FLOOR, EXIT, WALL, PICKUP, DEFAULT, PROJECTILE, FOREGROUND

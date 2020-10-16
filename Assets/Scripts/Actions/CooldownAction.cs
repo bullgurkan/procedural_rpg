@@ -33,7 +33,7 @@ public class CooldownAction : Action
                     else
                     {
                         if (caster.GetStat(Stat.ATTACK_SPEED) > 0)
-                            source.effectData[EffectData.COOLDOWN] = 200/ caster.GetStat(Stat.ATTACK_SPEED);
+                            source.effectData[EffectData.COOLDOWN] = 800/ caster.GetStat(Stat.ATTACK_SPEED);
                     }
                 }
                 

@@ -20,9 +20,13 @@ public class DamageAction : Action
     {
         if (damageCaster)
             reciver = caster;
-        int lifestealAmount = reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance, usedEventTypes) * caster.GetStat(Stat.LIFESTEAL) / 100;
-        if (lifestealAmount > 0)
-            caster.Heal(world, reciver, lifestealAmount, usedEventTypes);
+        if (reciver != null)
+        {
+            int lifestealAmount = reciver.Damage(world, caster, caster.GetStat(damageScaling), resitance, usedEventTypes) * caster.GetStat(Stat.LIFESTEAL) / 100;
+            if (lifestealAmount > 0)
+                caster.Heal(world, reciver, lifestealAmount, usedEventTypes);
+        }
+
     }
 
     public override string ToString() => $"DamageAction(Scaling:{damageScaling}, AttackType:{resitance}, DamageCaster:{damageCaster})";

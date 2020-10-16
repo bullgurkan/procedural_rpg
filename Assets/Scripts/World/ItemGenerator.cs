@@ -145,18 +145,21 @@ public class ItemGenerator
             case 1:
                 if (depth < maxDepth)
                 {
-                    itemActionBudget += itemActionBudget/2 < 300 ? 300 : itemActionBudget/2;
-                    int speed = random.Next(1, itemActionBudget > 200 ? 200 : itemActionBudget);
+
+                    itemActionBudget += powerLevel/2;
+                    int speed = random.Next(1, itemActionBudget > 200 ? 200 : itemActionBudget/4);
                     itemActionBudget -= speed;
-                    int size = random.Next(100, (100 + itemActionBudget > 200 ? 200 : itemActionBudget) * 2) * 2;
+
+                    int size = random.Next(100, (100 + (itemActionBudget > 200 ? 200 : itemActionBudget/4)) * 2) * 2;
                     itemActionBudget -= size / 100;
+                    
                     return new SpawnProjectileAction(item, Position.one * size, speed * 10, GenerateRandomAction(item, depth + 1, ref itemActionBudget, isPositive, !isAffectingGoodEntity));
                 }
                 goto case 0;
             case 2:
                 {
                     Effect effect = new Effect(item);
-                    bool shouldEffectBePositive = random.Next(2) == 0;
+                    bool shouldEffectBePositive = random.Next(10) != 0;
                     if (random.Next(0, 2) == 0)
                     {
                         int statPower = random.Next(1, itemActionBudget);

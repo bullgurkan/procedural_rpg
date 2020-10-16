@@ -14,4 +14,9 @@ public class ItemPickup : Entity
         world.QueueEntityRemoval(Id);
         return item;
     }
+
+    public Item PeekAtItem()
+    {
+        return item;
+    }
 }

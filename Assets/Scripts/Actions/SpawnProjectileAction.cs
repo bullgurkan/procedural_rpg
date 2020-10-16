@@ -20,20 +20,19 @@ public class SpawnProjectileAction : Action
     }
     public override void OnActivation(World world, EntityLiving caster, EntityLiving reciver, Position room, Position positionInRoom, List<EventType> usedEventTypes)
     {
+            Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, caster.CurrentRoom) - caster.PositionInRoom;
+            if (delta.Magnitude != 0)
+            {
+
+                List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE, TagType.PICKUP };
+
+                world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, caster, usedEventTypes, tagsToIgnore: tagsToIgnore), caster.CurrentRoom, caster.PositionInRoom + delta * caster.Size.x / delta.Magnitude);
+            }
+            else
+            {
+                UnityEngine.Debug.Log("spawn no proj");
+            }
         
-        Position delta = world.ConvertPositionBetweenRooms(positionInRoom, room, caster.CurrentRoom) - caster.PositionInRoom;
-        if(delta.Magnitude != 0)
-        {
-
-            List<TagType> tagsToIgnore = new List<TagType>() { TagType.PLAYER, TagType.PROJECTILE_PASSABLE, TagType.PICKUP };
-
-            world.AddEntity(new Projectile(size, delta * speed / delta.Magnitude, actionToUseOnProjectileHit, caster, usedEventTypes, tagsToIgnore: tagsToIgnore), caster.CurrentRoom, caster.PositionInRoom + delta * caster.Size.x / delta.Magnitude);
-        }
-        else
-        {
-            UnityEngine.Debug.Log("spawn no proj");
-        }
-       
     }
 
     public override string ToString() => $"SpawnProjectileAction(Size:{size}, Speed:{speed}, ActionToUseOnProjectileHit:{actionToUseOnProjectileHit})";

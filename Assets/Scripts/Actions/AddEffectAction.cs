@@ -18,7 +18,7 @@ public class AddEffectAction : Action
     {
         if (applyToCaster)
             reciver = caster;
-        reciver.AddEffect(effectToApply);
+        reciver.AddEffect(effectToApply, world.WorldRenderer);
     }
 
     public override string ToString() => $"AddEffectAction(EffectToApply:{effectToApply}, ApplyToCaster:{applyToCaster})";

@@ -35,7 +35,7 @@ public class RoomLogicTrapAmbush : RoomLogic
             {
                 Effect effect = new Effect(null);
                 effect.actions.Add(EventType.ON_DEATH, new UnlockRoomAction(this));
-                enemy.AddEffect(effect);
+                enemy.AddEffect(effect, world.WorldRenderer);
                 world.AddEntity(enemy, room.RoomPosition, enemy.PositionInRoom);
             }
             

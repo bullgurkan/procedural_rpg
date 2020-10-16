@@ -13,15 +13,17 @@ class UnityWorldRenerer : WorldRenderer
     SpriteRenderer entityObjectPrefab;
     Transform worldTransform;
     Dictionary<string, Sprite> spriteRegistry;
+    HealthbarManager hpMan;
     int positionUnitsPerUnityUnit;
     int cameraEntityToFollowId = -1;
 
-    public UnityWorldRenerer(SpriteRenderer entityObjectPrefab, Transform worldTransform, Dictionary<string, Sprite> spriteRegistry, int positionUnitsPerUnityUnit)
+    public UnityWorldRenerer(SpriteRenderer entityObjectPrefab, Transform worldTransform, Dictionary<string, Sprite> spriteRegistry, int positionUnitsPerUnityUnit, HealthbarManager hpMan)
     {
         this.entityObjectPrefab = entityObjectPrefab;
         this.worldTransform = worldTransform;
         this.spriteRegistry = spriteRegistry;
         this.positionUnitsPerUnityUnit = positionUnitsPerUnityUnit;
+        this.hpMan = hpMan;
         currentlyUsedObjects = new Dictionary<int, SpriteRenderer>();
 
         unusedObjects = new Stack<SpriteRenderer>();
@@ -119,6 +121,24 @@ class UnityWorldRenerer : WorldRenderer
         else
             Debug.Log("Entity does not exist");
 
+    }
+
+    public override void UpdateHealthBar(Character player)
+    {
+        hpMan.SetHealth(player.GetStat(EntityLiving.Stat.MAX_HEALTH), player.Health);
+    }
+
+    public override void UpdatePlayerStatDisplay(Character player)
+    {
+        UpdateHealthBar(player);
+    }
+
+    public override void AddItemComparisonOverlay(Item item1, Item item2, World world)
+    {
+        if(item1 != null)
+        {
+                
+        }
     }
 }
 

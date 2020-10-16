@@ -20,7 +20,8 @@ public class HealAction : Action
     {
         if (healCaster)
             reciver = caster;
-        reciver.Heal(world, caster, caster.GetStat(healingScaling), usedEventTypes);
+        if(reciver != null)
+            reciver.Heal(world, caster, caster.GetStat(healingScaling), usedEventTypes);
     }
 
     public override string ToString() => $"HealAction(Scaling:{healingScaling}, HealCaster:{healCaster})";
