@@ -14,16 +14,18 @@ class UnityWorldRenerer : WorldRenderer
     Transform worldTransform;
     Dictionary<string, Sprite> spriteRegistry;
     HealthbarManager hpMan;
+    ItemComparer itemComp;
     int positionUnitsPerUnityUnit;
     int cameraEntityToFollowId = -1;
 
-    public UnityWorldRenerer(SpriteRenderer entityObjectPrefab, Transform worldTransform, Dictionary<string, Sprite> spriteRegistry, int positionUnitsPerUnityUnit, HealthbarManager hpMan)
+    public UnityWorldRenerer(SpriteRenderer entityObjectPrefab, Transform worldTransform, Dictionary<string, Sprite> spriteRegistry, int positionUnitsPerUnityUnit, HealthbarManager hpMan, ItemComparer itemComp)
     {
         this.entityObjectPrefab = entityObjectPrefab;
         this.worldTransform = worldTransform;
         this.spriteRegistry = spriteRegistry;
         this.positionUnitsPerUnityUnit = positionUnitsPerUnityUnit;
         this.hpMan = hpMan;
+        this.itemComp = itemComp;
         currentlyUsedObjects = new Dictionary<int, SpriteRenderer>();
 
         unusedObjects = new Stack<SpriteRenderer>();
@@ -135,10 +137,7 @@ class UnityWorldRenerer : WorldRenderer
 
     public override void AddItemComparisonOverlay(Item item1, Item item2, World world)
     {
-        if(item1 != null)
-        {
-                
-        }
+        itemComp.SetitemsToCompare(item1, item2);
     }
 }
 

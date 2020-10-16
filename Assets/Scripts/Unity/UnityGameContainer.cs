@@ -9,6 +9,7 @@ class UnityGameContainer : MonoBehaviour
 {
     public SpriteRenderer entityObjectPrefab;
     public HealthbarManager hpMan;
+    public ItemComparer itemComp;
     public List<Sprite> sprites;
     public List<string> spriteIds;
     public float tps = 1;
@@ -31,7 +32,7 @@ class UnityGameContainer : MonoBehaviour
             spriteReg.Add(spriteIds[i], sprites[i]);
         }
         //spriteReg.Add("default", sprites[0]);
-        worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 800, hpMan);
+        worldRenerer = new UnityWorldRenerer(entityObjectPrefab, transform, spriteReg, 800, hpMan, itemComp);
 
         e = new Character(Position.one * 400, 760, name: "Player");
 
@@ -43,8 +44,12 @@ class UnityGameContainer : MonoBehaviour
         Item item = new Item(Character.Slot.WEAPON);
         item.actions.Add(Effect.EventType.ON_ACTIVATION, new CooldownAction(item, new SpawnProjectileAction(item, new Position(100, 100), 20, new DamageAction(item, EntityLiving.Stat.ATTACK_POWER, EntityLiving.Stat.ARMOR)), item));
         item.stats.Add(EntityLiving.Stat.ATTACK_POWER, 10);
+        item.stats.Add(EntityLiving.Stat.LIFESTEAL, 3);
+        item.stats.Add(EntityLiving.Stat.MAX_HEALTH, 50);
 
         e.ChangeEquipment(item, worldRenerer);
+
+        worldRenerer.AddItemComparisonOverlay(item, item, world);
 
     }
 
