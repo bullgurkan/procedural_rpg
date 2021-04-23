@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using static Effect;
 public class Character : EntityLiving
 {
@@ -109,12 +108,12 @@ public class Character : EntityLiving
     public void OpenItemCompareOverlay(World world)
     {
         ItemPickup itemPickup = (ItemPickup)world.BoxCastAll(CurrentRoom, PositionInRoom, Size).Find(x => x is ItemPickup);
-
+    
         if (itemPickup != null)
         {
             Item itemToLookAt = itemPickup.PeekAtItem();
             items.TryGetValue(itemToLookAt.Slot, out Item currentItemInSlot);
-            
+
             world.WorldRenderer.AddItemComparisonOverlay(currentItemInSlot, itemToLookAt, world);
         }
 

@@ -25,33 +25,40 @@ public class ItemComparer : MonoBehaviour
 
     public void SetitemsToCompare(Item item1, Item item2)
     {
-        if(item1 != null)
-            SetItem(item1, null, Item1Discription, Item1Stats);
+        SetItem(item1, item1, Item1Discription, Item1Stats);
         SetItem(item2, item1, Item2Discription, Item2Stats);
     }
 
-    
-    
+
+
     private void SetItem(Item item, Item otherItem, Transform ItemDiscription, Transform ItemStats)
     {
-        foreach (var stat in item.stats)
-        {
-            GameObject obj = new GameObject(stat.Key.ToString());
-            obj.transform.parent = ItemStats;
-            obj.AddComponent<HorizontalLayoutGroup>();
-            string statName = stat.Key.ToString();
-            statName.Replace('_', ' ');
-            AddText(obj, statName, Color.white);
-            AddText(obj, ": ", Color.white);
-            AddText(obj, stat.Value.ToString(), Color.white);
-            int otherItemStat = otherItem?.stats.ContainsKey(stat.Key) ?? false ? otherItem.stats[stat.Key] : 0;
-            int delta = otherItemStat - stat.Value;
-            if(delta != 0)
+        foreach (Transform child in ItemStats)
+            Destroy(child.gameObject);
+        if (item != null)
+            foreach (var stat in item.stats)
             {
-                AddText(obj, " " + (delta > 0 ? "+" : "")  + delta, Color.white);
+                GameObject obj = new GameObject(stat.Key.ToString());
+                obj.transform.parent = ItemStats;
+                obj.AddComponent<HorizontalLayoutGroup>();
+                string statName = stat.Key.ToString();
+                statName.Replace('_', ' ');
+                AddText(obj, statName, Color.white);
+                AddText(obj, ": ", Color.white);
+                AddText(obj, stat.Value.ToString(), Color.white);
+                int otherItemStat = otherItem?.stats.ContainsKey(stat.Key) ?? false ? otherItem.stats[stat.Key] : 0;
+                int delta =  stat.Value - otherItemStat;
+                if (delta != 0)
+                {
+                    
+                    AddText(obj, " " + (delta > 0 ? "+" : "") + delta, delta > 0 ? Color.green : (delta < 0 ? Color.red : Color.white));
+                }
+
+                ContentSizeFitter fit = obj.AddComponent<ContentSizeFitter>();
+                fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
             }
-               
-        }
 
     }
 
@@ -64,5 +71,8 @@ public class ItemComparer : MonoBehaviour
         tex.rectTransform.sizeDelta = Vector2.one * 20;
         tex.text = text;
         tex.color = color;
+        ContentSizeFitter fit = obj.AddComponent<ContentSizeFitter>();
+        fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 }
